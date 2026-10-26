@@ -1,0 +1,1828 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>오늘 할 일</title>
+<meta name="description" content="매일 하는 일과 오늘만 하는 일을 정리하는 투두리스트">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="할 일">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}body{margin:0;padding:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<style>
+/* Layout: slim weather line on top, then the day's list as soft warm cards */
+:root {
+  --bg: #f8f4ee;
+  --surface: #fffdf9;
+  --sunken: #f3eee6;
+  --fg: #2b2520;
+  --muted: #7b7067;
+  --line: #ebe3d8;
+  --accent: #3a7a68;
+  --accent-soft: #e9efe6;
+  --done: #3a7a68;
+  --danger: #c4493f;
+  --danger-soft: #fbece8;
+  --on-fill: #fffdf9;
+  --shadow: 0 1px 2px rgba(70, 45, 20, .05), 0 6px 20px rgba(70, 45, 20, .06);
+  --font-display: "Gowun Batang", "Nanum Myeongjo", serif;
+  --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #171311; --surface: #211c19; --sunken: #1c1815; --fg: #f0eae3; --muted: #a3978c;
+    --line: #322b26; --accent: #7fcab0; --accent-soft: #27322d; --done: #7fcab0; --danger: #ef8a7e; --danger-soft: #3b2521;
+    --on-fill: #171311; --shadow: none;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #171311; --surface: #211c19; --sunken: #1c1815; --fg: #f0eae3; --muted: #a3978c;
+  --line: #322b26; --accent: #7fcab0; --accent-soft: #27322d; --done: #7fcab0; --danger: #ef8a7e; --danger-soft: #3b2521;
+  --on-fill: #171311; --shadow: none;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px 140px;
+}
+.wrap { max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+
+header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 0 4px; }
+h1 { font-family: var(--font-display); font-size: 1.375rem; font-weight: 700; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+.date { color: var(--muted); font-size: 0.8125rem; font-variant-numeric: tabular-nums; }
+
+.datenav { display: flex; align-items: center; gap: 4px; }
+.nav-btn {
+  width: 32px; height: 32px; border-radius: 10px; border: 0; background: transparent;
+  color: var(--muted); font: inherit; font-size: 1.375rem; line-height: 1; cursor: pointer;
+}
+.nav-btn:hover:not(:disabled) { background: var(--accent-soft); color: var(--accent); }
+.nav-btn:disabled { opacity: .3; cursor: default; }
+.nav-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+#go-today { margin-left: 4px; padding: 2px 10px; }
+.date { min-width: 8.5ch; text-align: center; }
+body.future #morning, body.past #weather, body.past #add-form, body.past .status, body.past .group,
+body.past #empty, body.past #today-done { display: none !important; }
+body.future #weather, body.future .status, body.future #today-done { display: none !important; }
+li.item { -webkit-touch-callout: none; }
+.row { -webkit-user-select: none; user-select: none; }
+.row input { -webkit-user-select: text; user-select: text; }
+.edit-input {
+  flex: 1; min-width: 0; font: inherit; color: var(--fg);
+  background: var(--sunken); border: 1px solid var(--accent); border-radius: 10px; padding: 6px 10px;
+}
+.edit-input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.siren {
+  flex: none; width: 32px; height: 32px; border-radius: 10px; border: 0; padding: 0;
+  background: transparent; color: var(--muted); opacity: .55; cursor: pointer; display: grid; place-items: center;
+}
+.siren svg { width: 20px; height: 20px; }
+.siren:hover { opacity: 1; background: var(--danger-soft); color: var(--danger); }
+.siren.on { opacity: 1; color: var(--danger); }
+.siren.on svg path:first-child { fill: currentColor; fill-opacity: .28; }
+.siren:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+li.item.urgent .row { background: var(--danger-soft); }
+li.item.urgent .text { font-weight: 600; }
+li.item.dragging {
+  position: relative; z-index: 3; transition: none; background: var(--surface);
+  box-shadow: 0 10px 28px rgba(40, 25, 10, .22); border-radius: 14px;
+}
+li.item.dragging .row { background: var(--surface); }
+.check:disabled { opacity: .45; cursor: default; }
+.check:disabled:hover { border-color: var(--muted); }
+.check:disabled:hover svg { opacity: 0; }
+body.past { padding-block: 24px 48px; }
+.past-empty { margin: 0; padding: 28px 16px; text-align: center; color: var(--muted); background: var(--surface); border: 1px dashed var(--line); border-radius: 18px; }
+
+/* weather: one slim line at the very top */
+.weather { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.w-main {
+  display: inline-flex; align-items: center; gap: 6px; max-width: 100%;
+  padding: 3px 4px 3px 9px; background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+}
+.w-ico { flex: none; width: 16px; height: 16px; color: var(--accent); }
+.w-ico svg { display: block; width: 100%; height: 100%; }
+.w-temp { font-family: var(--font-display); font-size: 0.875rem; line-height: 1; font-variant-numeric: tabular-nums; color: var(--accent); }
+.w-info { min-width: 0; line-height: 1.25; }
+.w-phrase { font-size: 0.6875rem; font-weight: 600; overflow-wrap: anywhere; }
+.w-place { margin-left: 4px; font-size: 0.625rem; font-weight: 400; color: var(--muted); }
+.w-meta { color: var(--muted); font-size: 0.625rem; font-variant-numeric: tabular-nums; }
+.w-meta:empty { display: none; }
+.w-msg { margin: 0; padding: 0 4px; font-size: 0.6875rem; color: var(--muted); }
+.w-retry { align-self: flex-start; font-size: 0.75rem; }
+#w-change { font-size: 0.6875rem; padding: 1px 8px; border-radius: 999px; }
+#w-form { align-self: stretch; }
+#w-results { align-self: stretch; }
+
+/* date button + month calendar */
+header { position: relative; }
+.date-btn {
+  font: inherit; font-size: 0.75rem; color: var(--muted); background: transparent; border: 0;
+  padding: 4px 6px; border-radius: 8px; cursor: pointer; white-space: nowrap; min-width: 0;
+}
+.date-btn::after { content: " ▾"; font-size: 0.5625rem; }
+.date-btn[aria-expanded="true"]::after { content: " ▴"; }
+.date-btn:hover, .date-btn[aria-expanded="true"] { background: var(--accent-soft); color: var(--accent); }
+.date-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.cal {
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 6;
+  width: min(280px, 100%);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(40, 25, 10, .16); padding: 8px 10px 10px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.cal-head { display: flex; align-items: center; justify-content: space-between; }
+.cal-head .nav-btn { width: 34px; height: 30px; font-size: 1.25rem; border-radius: 8px; }
+.cal-title { font-size: 0.875rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.cal-wd { text-align: center; font-size: 0.6875rem; color: var(--muted); line-height: 18px; }
+.cal-wd.sun { color: var(--danger); }
+.cal-day {
+  position: relative; height: 32px; min-width: 0;
+  font: inherit; font-size: 0.875rem; line-height: 1; font-variant-numeric: tabular-nums; color: var(--fg);
+  background: transparent; border: 0; border-radius: 8px; cursor: pointer; padding: 0;
+}
+.cal-day.sun { color: var(--danger); }
+.cal-day:hover:not(:disabled) { background: var(--accent-soft); }
+.cal-day:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.cal-day:disabled { opacity: .3; cursor: default; }
+.cal-day.today { color: var(--accent); font-weight: 600; box-shadow: inset 0 0 0 1px var(--accent); }
+.cal-day.selected { background: var(--accent); color: var(--on-fill); font-weight: 600; box-shadow: none; }
+.cal-day .dot {
+  position: absolute; left: 50%; bottom: 3px; width: 4px; height: 4px; margin-left: -2px;
+  border-radius: 50%; background: var(--accent);
+}
+.cal-day.selected .dot { background: var(--on-fill); }
+#w-form { flex-direction: row; gap: 8px; }
+#w-q {
+  flex: 1; min-width: 0; font: inherit; color: var(--fg);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px;
+}
+#w-q:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+.w-pick {
+  display: block; width: 100%; text-align: left; font: inherit; color: var(--fg);
+  background: transparent; border: 0; padding: 10px 14px; cursor: pointer;
+}
+.w-pick:hover { background: var(--accent-soft); }
+.w-pick:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+/* add form */
+/* add form: pinned to the bottom of the screen */
+#add-form {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
+  padding-top: 10px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px), calc((100% - 480px) / 2));
+  padding-right: max(16px, env(safe-area-inset-right, 0px), calc((100% - 480px) / 2));
+  background: var(--bg); border-top: 1px solid var(--line);
+}
+form { display: flex; flex-direction: column; gap: 8px; }
+.input-row { display: flex; gap: 8px; }
+#new-todo {
+  flex: 1; min-width: 0; font: inherit; color: var(--fg);
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 14px; padding: 12px 16px; box-shadow: var(--shadow);
+}
+#new-todo::placeholder { color: var(--muted); }
+#new-todo:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+.add {
+  font: inherit; font-weight: 600; background: var(--accent); color: var(--on-fill);
+  border: 0; border-radius: 14px; padding: 0 20px; cursor: pointer;
+}
+.add:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+
+.toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 0.875rem; color: var(--muted); cursor: pointer; user-select: none; padding-left: 4px; }
+.toggle input { width: 18px; height: 18px; accent-color: var(--accent); margin: 0; cursor: pointer; }
+.toggle input:checked + span { color: var(--fg); }
+
+.status { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; color: var(--muted); font-size: 0.8125rem; font-variant-numeric: tabular-nums; padding: 0 4px; }
+.status strong { color: var(--fg); font-weight: 600; }
+.note { margin: 0; font-size: 0.8125rem; color: var(--danger); }
+
+/* lists */
+ul.list {
+  list-style: none; margin: 0; padding: 0;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 18px; overflow: hidden; box-shadow: var(--shadow);
+}
+li.item { border-top: 1px solid var(--line); transition: opacity .35s ease, transform .35s ease; }
+li.item:first-child { border-top: 0; }
+.row { display: flex; align-items: center; gap: 12px; padding: 12px 8px 12px 16px; min-height: 52px; }
+.row .text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.tag { font-size: 0.6875rem; color: var(--accent); background: var(--accent-soft); padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+
+.check {
+  flex: none; width: 24px; height: 24px; border-radius: 50%;
+  border: 2px solid var(--muted); background: transparent; cursor: pointer;
+  display: grid; place-items: center; padding: 0;
+  transition: background .15s ease, border-color .15s ease;
+}
+.check svg { width: 13px; height: 13px; opacity: 0; transition: opacity .15s ease; }
+.check svg path { stroke: var(--done); }
+.check:hover { border-color: var(--done); }
+.check:hover svg { opacity: .45; }
+.check:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.more {
+  flex: none; width: 36px; height: 36px; border-radius: 10px; border: 0;
+  background: transparent; color: var(--muted); font: inherit; font-size: 1.125rem; line-height: 1; cursor: pointer;
+}
+.more:hover, .more[aria-expanded="true"] { background: var(--accent-soft); color: var(--accent); }
+.more:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.settings {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding: 10px 16px 12px 52px; background: var(--sunken); border-top: 1px dashed var(--line);
+}
+.settings .actions { display: flex; gap: 8px; }
+.small-btn {
+  font: inherit; font-size: 0.8125rem; cursor: pointer; background: transparent;
+  border: 1px solid var(--line); border-radius: 10px; padding: 4px 12px; color: var(--fg);
+}
+.small-btn.danger { color: var(--danger); }
+.small-btn:hover { border-color: currentColor; }
+.small-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+li.item.done .check { background: var(--done); border-color: var(--done); }
+li.item.done .check svg { opacity: 1; }
+li.item.done .check svg path { stroke: var(--on-fill); }
+li.item.done .text { color: var(--muted); text-decoration: line-through; }
+li.item.leaving { opacity: 0; transform: translateX(24px); }
+
+.empty { text-align: center; color: var(--muted); padding: 28px 16px; background: var(--surface); border: 1px dashed var(--line); border-radius: 18px; }
+.empty b { display: block; color: var(--fg); font-weight: 600; margin-bottom: 4px; }
+
+.status-btn {
+  font: inherit; font-size: 0.8125rem; color: var(--muted); background: none; border: 0;
+  padding: 4px 10px; margin: -4px -10px; border-radius: 10px; cursor: pointer; font-variant-numeric: tabular-nums;
+}
+.status-btn strong { color: var(--fg); }
+.status-btn:hover, .status-btn[aria-expanded="true"] { background: var(--accent-soft); color: var(--accent); }
+.status-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.undo-btn {
+  flex: none; width: 36px; height: 36px; border: 0; border-radius: 10px; background: transparent;
+  font-size: 1.125rem; line-height: 1; cursor: pointer;
+}
+.undo-btn:hover { background: var(--accent-soft); }
+.undo-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.done-section { display: flex; flex-direction: column; gap: 8px; }
+.done-section h2 { margin: 0; padding: 0 4px; font-size: 0.8125rem; font-weight: 600; color: var(--muted); letter-spacing: 0.02em; }
+.done-section .row .text { color: var(--muted); text-decoration: line-through; }
+.done-mark { flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--done); display: grid; place-items: center; }
+.done-mark svg { width: 13px; height: 13px; }
+.done-mark svg path { stroke: var(--on-fill); }
+
+.history { display: flex; flex-direction: column; gap: 10px; }
+.history h2 { margin: 0; padding: 0 4px; font-size: 0.8125rem; font-weight: 600; color: var(--muted); letter-spacing: 0.02em; }
+#history-list { display: flex; flex-direction: column; gap: 14px; }
+.history-day { display: flex; flex-direction: column; gap: 6px; }
+.history-day h3 { margin: 0; padding: 0 4px; font-size: 0.75rem; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums; }
+.history .row { padding: 10px 16px; min-height: 0; }
+.history .row .text { color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  li.item, .check, .check svg { transition: none; }
+}
+
+/* ---- 물방울(유리) 스타일: 둥근 모양 + 반투명 유리 ---- */
+:root {
+  --glass: rgba(255, 253, 249, .62);
+  --glass-strong: rgba(255, 253, 249, .8);
+  --glass-border: rgba(255, 255, 255, .75);
+  --glass-hi: rgba(255, 255, 255, .95);
+  --glass-shadow: 0 1px 1px rgba(70, 45, 20, .04), 0 10px 30px rgba(70, 45, 20, .10);
+  --blob-a: rgba(58, 122, 104, .20);
+  --blob-b: rgba(236, 168, 116, .24);
+  --blob-c: rgba(140, 170, 220, .18);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --glass: rgba(42, 36, 32, .55); --glass-strong: rgba(42, 36, 32, .78);
+    --glass-border: rgba(255, 255, 255, .09); --glass-hi: rgba(255, 255, 255, .10);
+    --glass-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+    --blob-a: rgba(127, 202, 176, .14); --blob-b: rgba(220, 140, 90, .12); --blob-c: rgba(110, 140, 210, .12);
+  }
+}
+:root[data-theme="dark"] {
+  --glass: rgba(42, 36, 32, .55); --glass-strong: rgba(42, 36, 32, .78);
+  --glass-border: rgba(255, 255, 255, .09); --glass-hi: rgba(255, 255, 255, .10);
+  --glass-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+  --blob-a: rgba(127, 202, 176, .14); --blob-b: rgba(220, 140, 90, .12); --blob-c: rgba(110, 140, 210, .12);
+}
+
+/* 유리 뒤로 비치는 부드러운 색 번짐 */
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(42% 32% at 12% 8%, var(--blob-a), transparent 70%),
+    radial-gradient(38% 30% at 92% 30%, var(--blob-b), transparent 70%),
+    radial-gradient(48% 36% at 30% 92%, var(--blob-c), transparent 70%);
+}
+
+/* 유리 표면 */
+ul.list, .empty, .past-empty, .cal, .w-main, .input-row, #add-form .toggle, #w-q {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-hi), var(--glass-shadow);
+}
+.empty, .past-empty { border-style: solid; }
+.cal { background: var(--glass-strong); }
+
+/* 둥근 모서리 */
+ul.list, .empty, .past-empty { border-radius: 28px; }
+.cal { border-radius: 24px; padding: 10px 12px 12px; }
+li.item.dragging { border-radius: 28px; }
+.settings { padding-left: 54px; }
+.small-btn, .status-btn, .date-btn, #w-change { border-radius: 999px; }
+.small-btn { background: var(--glass); }
+.nav-btn, .more, .siren, .undo-btn, .cal-head .nav-btn { border-radius: 50%; }
+.cal-head .nav-btn { width: 32px; height: 32px; }
+.cal-day { border-radius: 999px; }
+.tag { border-radius: 999px; }
+#w-q { border-radius: 999px; padding: 8px 14px; }
+
+/* 아래 입력창: 떠 있는 물방울 캡슐 */
+#add-form {
+  background: transparent; border-top: 0;
+  padding-top: 8px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+}
+#add-form .toggle {
+  align-self: flex-start; padding: 5px 12px 5px 10px; border-radius: 999px; color: var(--fg);
+}
+.input-row { gap: 6px; padding: 5px; border-radius: 999px; }
+#new-todo {
+  background: transparent; border: 0; box-shadow: none; border-radius: 999px; padding: 10px 14px;
+}
+#new-todo:focus { outline: none; }
+.input-row:focus-within { box-shadow: inset 0 1px 0 var(--glass-hi), 0 0 0 2px var(--accent), var(--glass-shadow); }
+.add {
+  border-radius: 999px; padding: 0 22px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 4px 12px rgba(58, 122, 104, .28);
+}
+
+/* ---- 고급 마감: 절제된 잉크·샴페인 톤, 얇은 선, 넉넉한 여백 ---- */
+:root {
+  --bg: #f1eee9; --surface: #fbfaf8; --sunken: #f4f1ec; --fg: #1d1b19; --muted: #8b847b;
+  --line: rgba(29, 27, 25, .09); --accent: #9a7a4f; --accent-soft: rgba(154, 122, 79, .10);
+  --done: #1d1b19; --on-fill: #fbfaf8; --ink: #1d1b19; --on-ink: #fbfaf8;
+  --danger: #b4483e; --danger-soft: rgba(180, 72, 62, .08);
+  --font-display: "Noto Serif KR", "Nanum Myeongjo", serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Apple SD Gothic Neo", "IBM Plex Sans KR", "Malgun Gothic", system-ui, sans-serif;
+  --glass: rgba(251, 250, 248, .58); --glass-strong: rgba(251, 250, 248, .82);
+  --glass-border: rgba(255, 255, 255, .8); --glass-hi: rgba(255, 255, 255, 1);
+  --glass-shadow: 0 1px 2px rgba(29, 27, 25, .04), 0 18px 40px -12px rgba(29, 27, 25, .14);
+  --blob-a: rgba(201, 172, 122, .26); --blob-b: rgba(168, 176, 186, .22); --blob-c: rgba(214, 196, 168, .24);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e0d0c; --surface: #1a1816; --sunken: #151412; --fg: #f2eee8; --muted: #8f877d;
+    --line: rgba(255, 255, 255, .08); --accent: #d2b485; --accent-soft: rgba(210, 180, 133, .12);
+    --done: #f2eee8; --on-fill: #0e0d0c; --ink: #f2eee8; --on-ink: #0e0d0c;
+    --danger: #e98b7f; --danger-soft: rgba(233, 139, 127, .10);
+    --glass: rgba(30, 28, 26, .55); --glass-strong: rgba(30, 28, 26, .82);
+    --glass-border: rgba(255, 255, 255, .08); --glass-hi: rgba(255, 255, 255, .09);
+    --glass-shadow: 0 18px 40px -12px rgba(0, 0, 0, .6);
+    --blob-a: rgba(210, 180, 133, .12); --blob-b: rgba(120, 130, 145, .12); --blob-c: rgba(180, 150, 110, .08);
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e0d0c; --surface: #1a1816; --sunken: #151412; --fg: #f2eee8; --muted: #8f877d;
+  --line: rgba(255, 255, 255, .08); --accent: #d2b485; --accent-soft: rgba(210, 180, 133, .12);
+  --done: #f2eee8; --on-fill: #0e0d0c; --ink: #f2eee8; --on-ink: #0e0d0c;
+  --danger: #e98b7f; --danger-soft: rgba(233, 139, 127, .10);
+  --glass: rgba(30, 28, 26, .55); --glass-strong: rgba(30, 28, 26, .82);
+  --glass-border: rgba(255, 255, 255, .08); --glass-hi: rgba(255, 255, 255, .09);
+  --glass-shadow: 0 18px 40px -12px rgba(0, 0, 0, .6);
+  --blob-a: rgba(210, 180, 133, .12); --blob-b: rgba(120, 130, 145, .12); --blob-c: rgba(180, 150, 110, .08);
+}
+
+body { -webkit-font-smoothing: antialiased; letter-spacing: -0.01em; }
+.wrap { gap: 18px; }
+
+/* 제목 */
+h1 { font-size: 1.75rem; font-weight: 600; letter-spacing: -0.03em; }
+.date-btn { font-size: 0.75rem; letter-spacing: 0; }
+
+/* 숫자·라벨 */
+.status { font-size: 0.75rem; letter-spacing: 0.01em; }
+.done-section h2, .history h2 {
+  font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.12em; color: var(--muted);
+}
+.history-day h3 { font-size: 0.6875rem; letter-spacing: 0.04em; }
+
+/* 목록 행: 넉넉한 높이, 체크 뒤에서 시작하는 얇은 구분선 */
+li.item { border-top: 0; position: relative; }
+li.item + li.item::before {
+  content: ""; position: absolute; top: 0; left: 54px; right: 18px; height: 1px;
+  background: var(--line); pointer-events: none;
+}
+.row { padding: 14px 10px 14px 18px; min-height: 58px; gap: 14px; }
+.row .text { font-size: 0.96875rem; }
+.history .row { padding: 11px 18px; }
+
+/* 체크 원 */
+.check { width: 24px; height: 24px; border: 1.5px solid rgba(139, 132, 123, .55); }
+.check:hover { border-color: var(--ink); }
+.check svg path { stroke: var(--ink); }
+li.item.done .check { background: var(--ink); border-color: var(--ink); }
+li.item.done .check svg path { stroke: var(--on-ink); }
+.done-mark { background: var(--ink); }
+.done-mark svg path { stroke: var(--on-ink); }
+
+/* 태그: 채우지 않고 얇은 테두리만 */
+.tag {
+  background: transparent; color: var(--muted); border: 1px solid var(--line);
+  font-size: 0.6875rem; letter-spacing: 0.01em; padding: 2px 9px;
+}
+
+/* 버튼 */
+.small-btn { border-color: var(--line); font-size: 0.75rem; padding: 5px 13px; }
+.more, .siren { color: var(--muted); }
+.more:hover, .more[aria-expanded="true"] { background: var(--accent-soft); color: var(--fg); }
+.settings { background: transparent; border-top: 1px solid var(--line); }
+
+/* 긴급 행: 은은한 표시 */
+li.item.urgent .row { background: var(--danger-soft); }
+li.item.urgent .row::after { content: none; }
+
+/* 주 버튼: 잉크색 캡슐 */
+.add {
+  background: var(--ink); color: var(--on-ink); font-weight: 500; letter-spacing: 0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18), 0 6px 16px -6px rgba(29, 27, 25, .45);
+}
+.input-row:focus-within { box-shadow: inset 0 1px 0 var(--glass-hi), 0 0 0 1.5px var(--accent), var(--glass-shadow); }
+#add-form .toggle { font-size: 0.75rem; }
+.toggle input { accent-color: var(--ink); }
+
+/* 날씨 */
+.w-temp { color: var(--fg); font-weight: 600; }
+.w-ico { color: var(--accent); }
+
+/* 달력 */
+.cal-title { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.01em; }
+.cal-day.today { color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.cal-day.selected { background: var(--ink); color: var(--on-ink); }
+.cal-day.selected .dot { background: var(--on-ink); }
+.cal-day .dot { background: var(--accent); }
+
+/* 매일 / 오늘만 구분 */
+.group { display: flex; flex-direction: column; gap: 8px; }
+.group-h {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  margin: 0; padding: 0 8px;
+  font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.12em; color: var(--muted);
+}
+.group-count { font-weight: 500; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
+.group-note {
+  margin: 0; padding: 14px 18px; font-size: 0.8125rem; color: var(--muted);
+  background: var(--glass); border: 1px solid var(--glass-border); border-radius: 28px;
+  -webkit-backdrop-filter: blur(22px) saturate(180%); backdrop-filter: blur(22px) saturate(180%);
+}
+.group + .group { margin-top: 6px; }
+
+/* 옆으로 밀기 */
+.row { touch-action: pan-y; }
+li.item.swiping .row { position: relative; z-index: 1; background: var(--surface); }
+.swipe-bg {
+  position: absolute; left: 0; right: 0; top: 0; z-index: 0;
+  display: flex; align-items: center; padding: 0 24px;
+  font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.02em; color: var(--on-ink);
+  background: var(--muted);
+}
+.swipe-bg span { display: none; transition: transform .15s ease; }
+.swipe-bg.del { background: var(--danger); justify-content: flex-end; }
+.swipe-bg.del .sw-del { display: inline; }
+.swipe-bg.edit { background: var(--ink); justify-content: flex-start; }
+.swipe-bg.edit .sw-edit { display: inline; }
+.swipe-bg:not(.ready) span { opacity: .7; }
+.swipe-bg.ready span { transform: scale(1.1); }
+
+/* 되돌리기 알림 */
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 7;
+  bottom: calc(124px + env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: center; gap: 12px; max-width: calc(100% - 32px);
+  padding: 6px 6px 6px 18px; border-radius: 999px;
+  background: var(--glass-strong); border: 1px solid var(--glass-border);
+  -webkit-backdrop-filter: blur(22px) saturate(180%); backdrop-filter: blur(22px) saturate(180%);
+  box-shadow: inset 0 1px 0 var(--glass-hi), var(--glass-shadow);
+  font-size: 0.8125rem; white-space: nowrap;
+}
+#toast-msg { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.toast-undo {
+  flex: none; font: inherit; font-weight: 600; cursor: pointer;
+  background: var(--ink); color: var(--on-ink); border: 0; border-radius: 999px; padding: 7px 14px;
+}
+.toast-undo:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .swipe-bg span { transition: none; } }
+
+/* 수정 패널 */
+.small-btn.primary { background: var(--ink); color: var(--on-ink); border-color: var(--ink); font-weight: 600; }
+li.item .settings { padding-left: 56px; }
+.row { padding-right: 12px; }
+
+.status { justify-content: flex-end; }
+#empty-body:empty { display: none; }
+#empty b:last-of-type { margin-bottom: 0; }
+
+.repeat-mark { display: inline-block; margin-right: 6px; color: var(--accent); vertical-align: -2px; }
+.repeat-mark svg { display: block; width: 14px; height: 14px; }
+li.item .row { min-height: 58px; }
+
+.group-h .repeat-mark svg, .toggle .repeat-mark svg { width: 12px; height: 12px; }
+.group-h .repeat-mark { margin-right: 5px; vertical-align: -1px; }
+.toggle .repeat-mark { margin-right: 4px; vertical-align: -1px; }
+.done-section .row .text .repeat-mark { opacity: .7; }
+
+/* 오늘 완료: 날짜 달력처럼 작은 창으로 */
+.status { position: relative; z-index: 6; }
+.status-btn { font-size: 0.75rem; border-radius: 999px; padding: 4px 10px; margin: -4px -6px -4px 0; }
+.status-btn .chev { font-size: 0.5625rem; }
+.done-pop {
+  position: absolute; top: calc(100% + 8px); right: 0; z-index: 6;
+  width: min(300px, 100%); max-height: min(55vh, 420px); overflow-y: auto;
+  padding: 10px 6px 6px; gap: 4px; border-radius: 24px;
+  background: var(--glass-strong); border: 1px solid var(--glass-border);
+  -webkit-backdrop-filter: blur(22px) saturate(180%); backdrop-filter: blur(22px) saturate(180%);
+  box-shadow: inset 0 1px 0 var(--glass-hi), 0 18px 44px -10px rgba(29, 27, 25, .28);
+  letter-spacing: normal;
+}
+.done-pop h2 { padding: 0 12px 2px; }
+.done-pop ul.list {
+  background: transparent; border: 0; box-shadow: none; border-radius: 18px;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+.done-pop .row { min-height: 48px; padding: 10px 6px 10px 12px; gap: 12px; }
+.done-pop li.item + li.item::before { left: 48px; right: 12px; }
+.done-pop .row .text { font-size: 0.875rem; }
+header { z-index: 7; }
+
+/* 다 끝냈을 때: 상자 없이 글자만 */
+.empty {
+  background: transparent; border: 0; box-shadow: none;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  padding: 40px 16px; color: var(--muted);
+}
+.empty b { font-weight: 500; color: var(--muted); margin: 0; }
+
+.past-empty {
+  background: transparent; border: 0; box-shadow: none;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  padding: 40px 16px; color: var(--muted);
+}
+
+/* 날씨 + 아침의 한 줄 */
+.top-row { display: flex; align-items: flex-start; gap: 8px; }
+.m-pill { min-height: 38px; }
+.top-row .weather { flex: 0 0 auto; max-width: 62%; }
+.top-row:has(#w-form:not([hidden])) { flex-direction: column; }
+.top-row:has(#w-form:not([hidden])) .weather { max-width: 100%; }
+.morning { flex: 1 1 0; min-width: 0; display: flex; }
+.m-pill {
+  flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 1px;
+  text-align: left; font: inherit; color: var(--fg); cursor: pointer;
+  padding: 4px 14px; border-radius: 999px;
+  background: var(--glass); border: 1px solid var(--glass-border);
+  -webkit-backdrop-filter: blur(22px) saturate(180%); backdrop-filter: blur(22px) saturate(180%);
+  box-shadow: inset 0 1px 0 var(--glass-hi), var(--glass-shadow);
+}
+.m-pill:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.m-label { font-size: 0.5625rem; font-weight: 600; letter-spacing: 0.1em; color: var(--accent); white-space: nowrap; }
+.m-text {
+  font-family: var(--font-display); font-size: 0.75rem; line-height: 1.3;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.m-text.placeholder { font-family: var(--font-body); color: var(--muted); }
+.m-edit { cursor: text; box-shadow: inset 0 1px 0 var(--glass-hi), 0 0 0 1.5px var(--accent), var(--glass-shadow); }
+#m-input {
+  width: 100%; min-width: 0; font: inherit; font-family: var(--font-display); font-size: 0.75rem; line-height: 1.3;
+  color: var(--fg); background: transparent; border: 0; padding: 0; outline: none;
+}
+#m-input::placeholder { color: var(--muted); font-family: var(--font-body); }
+
+/* 날씨·아침의 한 줄: 상자 없이 글자만 */
+.w-main, .m-pill {
+  background: transparent; border: 0; box-shadow: none; border-radius: 0;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+.w-main { padding: 2px 0; }
+.top-row { align-items: flex-start; gap: 0; }
+.morning { border-left: 1px solid var(--line); margin-left: 14px; padding-left: 14px; }
+.weather[hidden] + .morning, body.past .morning { border-left: 0; margin-left: 0; padding-left: 0; }
+.m-pill { padding: 0; min-height: 0; gap: 3px; }
+.m-pill.readonly { cursor: default; pointer-events: none; }
+.m-label { font-size: 0.625rem; }
+.m-text {
+  font-size: 1rem; line-height: 1.4;
+  white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere;
+}
+.m-text.placeholder { font-size: 0.875rem; }
+.m-edit { box-shadow: none; }
+#m-input {
+  font-size: 1rem; line-height: 1.4; padding: 0 0 2px;
+  border-bottom: 1.5px solid var(--accent); border-radius: 0;
+}
+
+/* ---- 흰색(라이트) / 검은색(다크) 테마 ---- */
+:root {
+  --bg: #ffffff; --surface: #ffffff; --sunken: #f5f5f7; --fg: #111111; --muted: #8a8a8e;
+  --line: rgba(0, 0, 0, .08); --accent: #111111; --accent-soft: rgba(0, 0, 0, .05);
+  --done: #111111; --on-fill: #ffffff; --ink: #111111; --on-ink: #ffffff;
+  --danger: #e5484d; --danger-soft: rgba(229, 72, 77, .07);
+  --glass: rgba(255, 255, 255, .86); --glass-strong: rgba(255, 255, 255, .94);
+  --glass-border: rgba(0, 0, 0, .06); --glass-hi: rgba(255, 255, 255, 1);
+  --glass-shadow: 0 1px 2px rgba(0, 0, 0, .04), 0 14px 34px -14px rgba(0, 0, 0, .14);
+  --blob-a: transparent; --blob-b: transparent; --blob-c: transparent;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #000000; --surface: #1c1c1e; --sunken: #111113; --fg: #f5f5f7; --muted: #8e8e93;
+    --line: rgba(255, 255, 255, .10); --accent: #f5f5f7; --accent-soft: rgba(255, 255, 255, .08);
+    --done: #f5f5f7; --on-fill: #000000; --ink: #f5f5f7; --on-ink: #000000;
+    --danger: #ff6369; --danger-soft: rgba(255, 99, 105, .10);
+    --glass: rgba(28, 28, 30, .86); --glass-strong: rgba(28, 28, 30, .95);
+    --glass-border: rgba(255, 255, 255, .08); --glass-hi: rgba(255, 255, 255, .06);
+    --glass-shadow: 0 14px 34px -14px rgba(0, 0, 0, .8);
+    --blob-a: transparent; --blob-b: transparent; --blob-c: transparent;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #000000; --surface: #1c1c1e; --sunken: #111113; --fg: #f5f5f7; --muted: #8e8e93;
+  --line: rgba(255, 255, 255, .10); --accent: #f5f5f7; --accent-soft: rgba(255, 255, 255, .08);
+  --done: #f5f5f7; --on-fill: #000000; --ink: #f5f5f7; --on-ink: #000000;
+  --danger: #ff6369; --danger-soft: rgba(255, 99, 105, .10);
+  --glass: rgba(28, 28, 30, .86); --glass-strong: rgba(28, 28, 30, .95);
+  --glass-border: rgba(255, 255, 255, .08); --glass-hi: rgba(255, 255, 255, .06);
+  --glass-shadow: 0 14px 34px -14px rgba(0, 0, 0, .8);
+  --blob-a: transparent; --blob-b: transparent; --blob-c: transparent;
+  color-scheme: dark;
+}
+body::after { display: none; }
+.check { border-color: rgba(138, 138, 142, .55); }
+li.item.dragging { box-shadow: 0 10px 28px rgba(0, 0, 0, .18); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top-row" id="top-row">
+    <section class="weather" id="weather" aria-label="오늘 날씨">
+      <div class="w-main">
+        <div class="w-ico" id="w-ico" aria-hidden="true"></div>
+        <div class="w-temp" id="w-temp">--°</div>
+        <div class="w-info">
+          <div class="w-phrase"><span id="w-phrase">불러오는 중…</span><span class="w-place" id="w-place"></span></div>
+          <div class="w-meta" id="w-meta"></div>
+        </div>
+        <button class="small-btn" id="w-change" type="button">위치</button>
+      </div>
+      <p class="w-msg" id="w-msg" role="status" hidden></p>
+      <button class="small-btn w-retry" id="w-retry" type="button" hidden>다시 불러오기</button>
+      <form id="w-form" autocomplete="off" hidden>
+        <input id="w-q" type="text" placeholder="도시나 동네 이름" maxlength="60" aria-label="날씨 위치 검색">
+        <button class="small-btn" type="submit">검색</button>
+        <button class="small-btn" id="w-here" type="button">현재 위치</button>
+      </form>
+      <ul class="list" id="w-results" aria-label="검색된 위치" hidden></ul>
+    </section>
+    <div class="morning" id="morning">
+      <button class="m-pill" id="m-view" type="button" aria-label="아침의 한 줄 쓰기">
+        <span class="m-label">아침의 한 줄</span>
+        <span class="m-text" id="m-text"></span>
+      </button>
+      <form class="m-pill m-edit" id="m-form" autocomplete="off" hidden>
+        <span class="m-label">아침의 한 줄</span>
+        <input id="m-input" type="text" maxlength="60" placeholder="오늘 아침 떠오른 한 줄" aria-label="아침의 한 줄">
+      </form>
+    </div>
+  </div>
+
+  <header>
+    <h1>오늘 할 일</h1>
+    <div class="datenav">
+      <button class="nav-btn" id="prev-day" type="button" aria-label="이전 날">‹</button>
+      <button class="date date-btn" id="today" type="button" aria-expanded="false" aria-controls="cal" aria-label="달력 열기"></button>
+      <button class="nav-btn" id="next-day" type="button" aria-label="다음 날">›</button>
+      <button class="small-btn" id="go-today" type="button" hidden>오늘</button>
+    </div>
+    <section class="cal" id="cal" aria-label="달력" hidden>
+      <div class="cal-head">
+        <button class="nav-btn" id="cal-prev" type="button" aria-label="이전 달">‹</button>
+        <span class="cal-title" id="cal-title"></span>
+        <button class="nav-btn" id="cal-next" type="button" aria-label="다음 달">›</button>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      
+    </section>
+  </header>
+
+
+  <div class="status">
+    <span hidden>남은 일 <strong id="remain">0</strong>개</span>
+    <button class="status-btn" id="done-toggle" type="button" aria-expanded="false" aria-controls="today-done">오늘 완료 <strong id="cleared">0</strong>개 <span class="chev" aria-hidden="true">▾</span></button>
+    <section class="done-section done-pop" id="today-done" hidden>
+      <h2>오늘 완료한 일 · <span id="today-done-count">0</span></h2>
+      <ul class="list" id="today-done-list" aria-label="오늘 완료한 일"></ul>
+    </section>
+  </div>
+  <p class="note" id="note" role="status" hidden></p>
+
+  <div class="empty" id="loading">목록을 불러오는 중이에요…</div>
+  <section class="group" id="g-once" aria-labelledby="g-once-h" hidden>
+    <h2 class="group-h" id="g-once-h"><span id="once-title">오늘만 하는 일</span><span class="group-count" id="once-count"></span></h2>
+    <ul class="list" id="list" aria-label="오늘만 하는 일"></ul>
+  </section>
+  <section class="group" id="g-daily" aria-labelledby="g-daily-h" hidden>
+    <h2 class="group-h" id="g-daily-h"><span><span class="repeat-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></span>매일 하는 일</span><span class="group-count" id="daily-count"></span></h2>
+    <ul class="list" id="list-daily" aria-label="매일 하는 일"></ul>
+    <p class="group-note" id="daily-note" hidden>오늘 몫은 모두 끝냈어요. 내일 다시 나타나요.</p>
+  </section>
+  <div class="empty" id="empty" hidden><b id="empty-title">오늘 할 일을 모두 끝냈어요</b><span id="empty-body"></span></div>
+
+  <section class="history" id="history" hidden>
+    <h2 id="history-title">지난 기록</h2>
+    <div id="history-list"></div>
+  </section>
+
+  <div class="toast" id="toast" role="status" hidden>
+    <span id="toast-msg"></span>
+    <button class="toast-undo" id="toast-undo" type="button">되돌리기</button>
+  </div>
+
+  <form id="add-form" autocomplete="off">
+    <label class="toggle"><input id="new-repeat" type="checkbox"><span><span class="repeat-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></span>매일 반복</span></label>
+    <div class="input-row">
+      <input id="new-todo" type="text" placeholder="할 일을 입력하고 Enter" maxlength="200" aria-label="새 할 일">
+      <button class="add" type="submit">추가</button>
+    </div>
+  </form>
+</div>
+
+<script>
+(function () {
+  var LOCAL_KEY = "todo-v1";
+  var CHECK = '<svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3L13 4.5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  function localDay() {
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+  var currentDay = localDay();
+  var viewDay = currentDay;   // 화면에 보고 있는 날 (오늘이면 currentDay와 같다)
+  var loaded = false;
+  var mode = "pending";   // "db" = 서버 저장, "local" = 이 브라우저에만 저장
+  var ref = null;
+  var openId = null;
+  var editId = null;   // 수정 중인 항목
+  var drag = null;     // 길게 눌러 옮기는 중인 항목
+
+  function defaultState() {
+    return {
+      items: [
+        { id: 1, text: "할 일을 적고 왼쪽 동그라미를 눌러 보세요", example: true },
+        { id: 2, text: "물 8잔 마시기", example: true, repeat: true },
+        { id: 3, text: "과제 제출 확인하기", example: true }
+      ],
+      nextId: 4,
+      clearedDate: currentDay,
+      cleared: 0
+    };
+  }
+  var state = defaultState();
+
+  function normalize() {
+    if (!Array.isArray(state.items)) state.items = [];
+    var max = 0;
+    state.items.forEach(function (it) { if (it.id > max) max = it.id; });
+    if (!state.nextId || state.nextId <= max) state.nextId = max + 1;
+    // 날짜가 바뀌었으면 오늘 완료 개수는 메모리에서만 0으로 돌린다 (다음 저장 때 함께 기록됨)
+    if (state.clearedDate !== currentDay) { state.clearedDate = currentDay; state.cleared = 0; }
+    state.cleared = state.cleared || 0;
+    if (!state.history || typeof state.history !== "object") state.history = {};
+    if (!state.lines || typeof state.lines !== "object") state.lines = {};
+    Object.keys(state.lines).sort().reverse().slice(90).forEach(function (k) { delete state.lines[k]; });
+    // 기록은 최근 90일만 보관한다
+    Object.keys(state.history).sort().reverse().slice(90).forEach(function (k) { delete state.history[k]; });
+  }
+
+  // ---- 날짜별 완료 기록 ----
+  function logDone(item) {
+    if (!state.history) state.history = {};
+    var arr = state.history[currentDay] || (state.history[currentDay] = []);
+    arr.push({ id: item.id, text: item.text, repeat: !!item.repeat, urgent: !!item.urgent });
+  }
+  function unlogDone(id) {
+    var arr = state.history && state.history[currentDay];
+    if (!arr) return;
+    for (var i = arr.length - 1; i >= 0; i--) {
+      if (arr[i].id === id) { arr.splice(i, 1); break; }
+    }
+    if (!arr.length) delete state.history[currentDay];
+  }
+  function dayLabel(key) {
+    if (key === currentDay) return "오늘";
+    var p = key.split("-");
+    var d = new Date(+p[0], +p[1] - 1, +p[2]);
+    var y = new Date(); y.setDate(y.getDate() - 1);
+    var yKey = y.getFullYear() + "-" + String(y.getMonth() + 1).padStart(2, "0") + "-" + String(y.getDate()).padStart(2, "0");
+    if (key === yKey) return "어제";
+    return (d.getMonth() + 1) + "월 " + d.getDate() + "일 " + ["일", "월", "화", "수", "목", "금", "토"][d.getDay()] + "요일";
+  }
+  function renderHistory() {
+    var past = viewDay < currentDay;
+    document.body.classList.toggle("past", past);
+    document.getElementById("history-title").textContent = past ? "이 날 끝낸 일" : "지난 기록";
+    var future = viewDay > currentDay;
+    var days = past ? [viewDay] : future ? [] : Object.keys(state.history).filter(function (k) { return k !== currentDay; }).sort().reverse().slice(0, 14);
+    historyList.innerHTML = "";
+    days.forEach(function (k) {
+      var entries = state.history[k];
+      if (!entries || !entries.length) return;
+      var box = document.createElement("div");
+      box.className = "history-day";
+      var h = document.createElement("h3");
+      h.textContent = dayLabel(k) + " · " + entries.length + "개 완료";
+      var ul = document.createElement("ul");
+      ul.className = "list";
+      entries.forEach(function (e) {
+        var li = document.createElement("li");
+        li.className = "item";
+        var row = document.createElement("div");
+        row.className = "row";
+        var m = document.createElement("span");
+        m.className = "done-mark";
+        m.innerHTML = CHECK;
+        var t = document.createElement("span");
+        t.className = "text";
+        t.textContent = e.text;
+        row.appendChild(m);
+        row.appendChild(t);
+        li.appendChild(row);
+        ul.appendChild(li);
+      });
+      box.appendChild(h);
+      box.appendChild(ul);
+      historyList.appendChild(box);
+    });
+    if (past && historyList.childElementCount === 0) {
+      var m = document.createElement("p");
+      m.className = "past-empty";
+      m.textContent = "이 날 끝낸 일 기록이 없어요.";
+      historyList.appendChild(m);
+    }
+    historySection.hidden = !past && historyList.childElementCount === 0;
+  }
+
+  var list = document.getElementById("list");
+  var listDaily = document.getElementById("list-daily");
+  var gDaily = document.getElementById("g-daily");
+  var gOnce = document.getElementById("g-once");
+  var dailyNote = document.getElementById("daily-note");
+  var todayDone = document.getElementById("today-done");
+  var todayDoneList = document.getElementById("today-done-list");
+  var todayDoneCount = document.getElementById("today-done-count");
+  var doneToggle = document.getElementById("done-toggle");
+  var showDone = false;
+  var empty = document.getElementById("empty");
+  var loading = document.getElementById("loading");
+  var remain = document.getElementById("remain");
+  var cleared = document.getElementById("cleared");
+  var note = document.getElementById("note");
+  var historySection = document.getElementById("history");
+  var historyList = document.getElementById("history-list");
+  var input = document.getElementById("new-todo");
+  var newRepeat = document.getElementById("new-repeat");
+
+  function showNote(msg) { note.textContent = msg || ""; note.hidden = !msg; }
+
+  // ---- 저장 ----
+  var writing = false, dirty = false;
+  function save() {
+    if (mode === "db") {
+      dirty = true;
+      if (!writing) flush();
+    } else {
+      try { localStorage.setItem(LOCAL_KEY, JSON.stringify(state)); } catch (e) {}
+    }
+  }
+  function flush() {
+    writing = true;
+    (function step() {
+      if (!dirty) { writing = false; return; }
+      dirty = false;
+      ref.set(clone(state)).then(function () {
+        showNote("");
+        step();
+      }, function () {
+        showNote("저장하지 못했어요. 연결을 확인한 뒤 다시 시도해 주세요.");
+        step();
+      });
+    })();
+  }
+
+  // ---- 불러오기 ----
+  function startLocal() {
+    mode = "local";
+    try {
+      var raw = localStorage.getItem(LOCAL_KEY);
+      if (raw) state = JSON.parse(raw);
+    } catch (e) {}
+    normalize();
+    loaded = true;
+    render();
+  }
+
+  var fallbackTimer = null;
+  function onSnap(snap) {
+    if (snap.metadata.hasPendingWrites || drag) return;          // 내 쓰기가 아직 확정 전이면 무시
+    if (!snap.exists && snap.metadata.fromCache && !loaded) return; // 서버 확인 전 빈 응답은 기다린다
+    clearTimeout(fallbackTimer);
+    if (snap.exists) {
+      state = clone(snap.data());
+    } else {
+      // 처음 서버에 저장할 때, 이 브라우저에 남아 있던 목록이 있으면 옮겨 온다
+      var moved = null;
+      try { var raw = localStorage.getItem(LOCAL_KEY); if (raw) moved = JSON.parse(raw); } catch (e) {}
+      state = moved && Array.isArray(moved.items) ? moved : defaultState();
+      if (moved) { normalize(); loaded = true; save(); render(); return; }
+    }
+    normalize();
+    loaded = true;
+    render();
+  }
+  function onSnapError() {
+    if (mode === "db" && !loaded) { startLocal(); showNote("서버에 연결하지 못해 이 브라우저에만 저장해요."); }
+    else showNote("동기화가 끊겼어요. 앱을 다시 열어 주세요.");
+  }
+
+  function init() {
+    // 이 앱은 계정 없이, 이 휴대폰 안에만 저장한다
+    startLocal();
+  }
+
+  // ---- 날씨 (Open-Meteo, 계정·키 없이 무료) ----
+  var weatherStarted = false;
+  var DEFAULT_PLACE = { name: "서울", lat: 37.5665, lon: 126.978 };
+  var wEl = document.getElementById("weather");
+  var wTemp = document.getElementById("w-temp");
+  var wPhrase = document.getElementById("w-phrase");
+  var wMeta = document.getElementById("w-meta");
+  var wMsg = document.getElementById("w-msg");
+  var wPlace = document.getElementById("w-place");
+  var wRetry = document.getElementById("w-retry");
+  var wChange = document.getElementById("w-change");
+  var wForm = document.getElementById("w-form");
+  var wQ = document.getElementById("w-q");
+  var wResults = document.getElementById("w-results");
+  var wHere = document.getElementById("w-here");
+
+  var wIco = document.getElementById("w-ico");
+  var ICONS = {
+    sun: '<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>',
+    cloud: '<path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>',
+    partly: '<circle cx="8" cy="8" r="3.5"/><path d="M8 1.5v1.5M1.5 8H3M3.4 3.4l1 1M12.6 3.4l-1 1"/><path transform="translate(5.5 6) scale(.75)" fill="var(--bg)" d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>',
+    rain: '<path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/><path d="M8 19v2M8 13v2M16 19v2M16 13v2M12 21v2M12 15v2"/>',
+    storm: '<path d="M19 16.9A5 5 0 0 0 18 7h-1.26a8 8 0 1 0-11.62 9"/><path d="M13 11l-4 6h6l-4 6"/>',
+    snow: '<path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"/><path d="M8 16h.01M8 20h.01M12 18h.01M12 22h.01M16 16h.01M16 20h.01"/>',
+    fog: '<path d="M4 8h16M2 12h16M6 16h16M4 20h12"/>',
+    moon: '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
+    moonCloud: '<path transform="translate(1 0) scale(.6)" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/><path transform="translate(5.5 6) scale(.75)" fill="var(--bg)" d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>'
+  };
+  // 세계기상기구(WMO) 날씨 코드 → [문구, 아이콘]
+  function describe(code, isDay) {
+    var night = isDay === 0;
+    if (code === 0) return ["맑음", night ? "moon" : "sun"];
+    if (code === 1) return ["대체로 맑음", night ? "moon" : "partly"];
+    if (code === 2) return ["구름 조금", night ? "moonCloud" : "partly"];
+    if (code === 3) return ["흐림", "cloud"];
+    if (code === 45 || code === 48) return ["안개", "fog"];
+    if (code >= 51 && code <= 57) return ["이슬비", "rain"];
+    if (code === 61) return ["약한 비", "rain"];
+    if (code === 63) return ["비", "rain"];
+    if (code === 65) return ["강한 비", "rain"];
+    if (code === 66 || code === 67) return ["어는 비", "rain"];
+    if (code === 71) return ["약한 눈", "snow"];
+    if (code === 73) return ["눈", "snow"];
+    if (code === 75) return ["많은 눈", "snow"];
+    if (code === 77) return ["싸락눈", "snow"];
+    if (code >= 80 && code <= 82) return ["소나기", "rain"];
+    if (code === 85 || code === 86) return ["눈 소나기", "snow"];
+    if (code === 95) return ["뇌우", "storm"];
+    if (code === 96 || code === 99) return ["우박을 동반한 뇌우", "storm"];
+    return ["", "cloud"];
+  }
+  function setIcon(kind) {
+    if (!kind) { wIco.innerHTML = ""; return; }
+    wIco.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' + ICONS[kind] + '</svg>';
+  }
+  function getJSON(url) {
+    return fetch(url).then(function (r) {
+      if (!r.ok) throw new Error("http " + r.status);
+      return r.json();
+    });
+  }
+  function setWMsg(text, canRetry) {
+    wMsg.textContent = text || "";
+    wMsg.hidden = !text;
+    wRetry.hidden = !canRetry;
+  }
+  function weatherError() {
+    wPhrase.textContent = "날씨를 불러오지 못했어요";
+    wTemp.textContent = "--°";
+    wMeta.textContent = "";
+    setIcon(null);
+    setWMsg("인터넷 연결을 확인한 뒤 다시 불러와 주세요.", true);
+  }
+  function place() {
+    var p = state.place;
+    return p && typeof p.lat === "number" && typeof p.lon === "number" ? p : DEFAULT_PLACE;
+  }
+  var WCACHE = "todo-weather-v1";
+  function renderWeather(d) {
+    var c = d.current || {};
+    var day = d.daily || {};
+    var t = Math.round(c.temperature_2m);
+    wTemp.textContent = isFinite(t) ? t + "°" : "--°";
+    var info = describe(c.weather_code, c.is_day);
+    wPhrase.textContent = info[0];
+    setIcon(info[1]);
+    var hi = day.temperature_2m_max && Math.round(day.temperature_2m_max[0]);
+    var lo = day.temperature_2m_min && Math.round(day.temperature_2m_min[0]);
+    var pr = day.precipitation_probability_max && day.precipitation_probability_max[0];
+    var parts = [];
+    if (isFinite(hi)) parts.push("최고 " + hi + "°");
+    if (isFinite(lo)) parts.push("최저 " + lo + "°");
+    if (pr != null && isFinite(pr)) parts.push("강수 " + pr + "%");
+    wMeta.textContent = parts.join(" · ");
+    wPlace.textContent = place().name;
+    setWMsg("", false);
+  }
+  function loadWeather(force) {
+    var p = place();
+    var key = p.lat.toFixed(3) + "," + p.lon.toFixed(3);
+    // 30분 안에 불러온 날씨는 다시 받지 않는다
+    if (!force) {
+      try {
+        var cached = JSON.parse(localStorage.getItem(WCACHE) || "null");
+        if (cached && cached.key === key && Date.now() - cached.at < 30 * 60 * 1000) { renderWeather(cached.data); return; }
+      } catch (e) {}
+    }
+    setWMsg("", false);
+    wPhrase.textContent = "날씨를 불러오는 중이에요…";
+    var url = "https://api.open-meteo.com/v1/forecast?latitude=" + p.lat + "&longitude=" + p.lon +
+      "&current=temperature_2m,weather_code,is_day" +
+      "&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max" +
+      "&timezone=auto&forecast_days=1";
+    getJSON(url).then(function (d) {
+      try { localStorage.setItem(WCACHE, JSON.stringify({ key: key, at: Date.now(), data: d })); } catch (e) {}
+      renderWeather(d);
+    }, weatherError);
+  }
+  function startWeather() { loadWeather(false); }
+  function choosePlace(p) {
+    state.place = p;
+    save();
+    wForm.hidden = true;
+    wResults.hidden = true;
+    wQ.value = "";
+    loadWeather(true);
+  }
+  wRetry.addEventListener("click", function () { loadWeather(true); });
+  wChange.addEventListener("click", function () {
+    wForm.hidden = !wForm.hidden;
+    wResults.hidden = true;
+    setWMsg("", false);
+    if (!wForm.hidden) wQ.focus();
+  });
+  wHere.addEventListener("click", function () {
+    if (!navigator.geolocation) { setWMsg("이 기기에서는 현재 위치를 쓸 수 없어요. 지역 이름으로 검색해 주세요.", false); return; }
+    setWMsg("현재 위치를 찾는 중이에요…", false);
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      choosePlace({ name: "현재 위치", lat: +pos.coords.latitude.toFixed(4), lon: +pos.coords.longitude.toFixed(4) });
+    }, function () {
+      setWMsg("위치를 가져오지 못했어요. 설정에서 위치 권한을 허용하거나 지역 이름으로 검색해 주세요.", false);
+    }, { timeout: 10000, maximumAge: 10 * 60 * 1000 });
+  });
+  wForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var q = wQ.value.trim();
+    if (!q) return;
+    wResults.innerHTML = "";
+    setWMsg("찾는 중이에요…", false);
+    getJSON("https://geocoding-api.open-meteo.com/v1/search?count=6&language=ko&format=json&name=" + encodeURIComponent(q))
+      .then(function (found) {
+        var rs = (found && found.results) || [];
+        if (!rs.length) { setWMsg("검색 결과가 없어요. 영어로도 찾아보세요 (예: Cheonan).", false); wResults.hidden = true; return; }
+        setWMsg("", false);
+        rs.forEach(function (r) {
+          var li = document.createElement("li");
+          li.className = "item";
+          var b = document.createElement("button");
+          b.type = "button";
+          b.className = "w-pick";
+          var label = r.name + (r.admin1 && r.admin1 !== r.name ? ", " + r.admin1 : "") + (r.country_code && r.country_code !== "KR" ? " (" + r.country_code + ")" : "");
+          b.textContent = label;
+          b.addEventListener("click", function () { choosePlace({ name: r.name, lat: r.latitude, lon: r.longitude }); });
+          li.appendChild(b);
+          wResults.appendChild(li);
+        });
+        wResults.hidden = false;
+      }, function () { setWMsg("검색하지 못했어요. 인터넷 연결을 확인해 주세요.", true); });
+  });
+  document.addEventListener("visibilitychange", function () { if (!document.hidden && weatherStarted) loadWeather(false); });
+
+  // ---- 화면 ----
+  var WEEK = ["일", "월", "화", "수", "목", "금", "토"];
+  function keyOf(d) {
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function parseKey(key) { var p = key.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function shiftDay(key, n) { var d = parseKey(key); d.setDate(d.getDate() + n); return keyOf(d); }
+  function setDateLabel() {
+    var d = parseKey(viewDay);
+    document.getElementById("today").textContent = (d.getMonth() + 1) + "월 " + d.getDate() + "일 " + WEEK[d.getDay()] + "요일";
+    document.getElementById("next-day").disabled = viewDay >= shiftDay(currentDay, 90);
+    document.getElementById("prev-day").disabled = viewDay <= shiftDay(currentDay, -90);
+    document.getElementById("go-today").hidden = viewDay === currentDay;
+  }
+  function goDay(key) {
+    viewDay = key;
+    openId = null;
+    setDateLabel();
+    render();
+    window.scrollTo(0, 0);
+  }
+  document.getElementById("prev-day").addEventListener("click", function () { goDay(shiftDay(viewDay, -1)); });
+  document.getElementById("next-day").addEventListener("click", function () { if (viewDay < shiftDay(currentDay, 90)) goDay(shiftDay(viewDay, 1)); });
+  document.getElementById("go-today").addEventListener("click", function () { goDay(currentDay); });
+
+  // ---- 한 달 달력 ----
+  var calEl = document.getElementById("cal");
+  var calGrid = document.getElementById("cal-grid");
+  var calBtn = document.getElementById("today");
+  var calMonth = null;   // 달력에 보이는 달의 1일
+  function monthStart(key) { var d = parseKey(key); return new Date(d.getFullYear(), d.getMonth(), 1); }
+  function hasMark(key) {
+    if (state.history && state.history[key] && state.history[key].length) return true;
+    if (key > currentDay) return state.items.some(function (it) { return it.date === key; });
+    return false;
+  }
+  function renderCal() {
+    if (calEl.hidden || !calMonth) return;
+    var y = calMonth.getFullYear(), m = calMonth.getMonth();
+    document.getElementById("cal-title").textContent = y + "년 " + (m + 1) + "월";
+    var minKey = shiftDay(currentDay, -90), maxKey = shiftDay(currentDay, 90);
+    document.getElementById("cal-prev").disabled = keyOf(new Date(y, m, 0)) < minKey;
+    document.getElementById("cal-next").disabled = keyOf(new Date(y, m + 1, 1)) > maxKey;
+    calGrid.innerHTML = "";
+    WEEK.forEach(function (w, i) {
+      var h = document.createElement("div");
+      h.className = "cal-wd" + (i === 0 ? " sun" : "");
+      h.textContent = w;
+      calGrid.appendChild(h);
+    });
+    for (var b = 0; b < calMonth.getDay(); b++) calGrid.appendChild(document.createElement("span"));
+    var last = new Date(y, m + 1, 0).getDate();
+    for (var d = 1; d <= last; d++) {
+      (function (date) {
+        var key = keyOf(date);
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "cal-day" + (date.getDay() === 0 ? " sun" : "") +
+          (key === currentDay ? " today" : "") + (key === viewDay ? " selected" : "");
+        btn.textContent = date.getDate();
+        btn.setAttribute("aria-label", (date.getMonth() + 1) + "월 " + date.getDate() + "일 " + WEEK[date.getDay()] + "요일");
+        if (key === viewDay) btn.setAttribute("aria-current", "date");
+        btn.disabled = key < minKey || key > maxKey;
+        if (hasMark(key)) {
+          var dot = document.createElement("span");
+          dot.className = "dot";
+          dot.setAttribute("aria-hidden", "true");
+          btn.appendChild(dot);
+        }
+        btn.addEventListener("click", function () { setCal(false); goDay(key); });
+        calGrid.appendChild(btn);
+      })(new Date(y, m, d));
+    }
+  }
+  function setCal(open) {
+    calEl.hidden = !open;
+    calBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    calBtn.setAttribute("aria-label", open ? "달력 닫기" : "달력 열기");
+    if (open) { calMonth = monthStart(viewDay); renderCal(); }
+  }
+  calBtn.addEventListener("click", function () { setCal(calEl.hidden); });
+  document.getElementById("cal-prev").addEventListener("click", function () {
+    calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() - 1, 1); renderCal();
+  });
+  document.getElementById("cal-next").addEventListener("click", function () {
+    calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() + 1, 1); renderCal();
+  });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !calEl.hidden) { setCal(false); calBtn.focus(); } });
+  document.addEventListener("pointerdown", function (e) {
+    if (!calEl.hidden && !calEl.contains(e.target) && !calBtn.contains(e.target)) setCal(false);
+  });
+  function isDoneToday(it) { return it.repeat && it.doneDate === currentDay; }
+  function find(id) { return state.items.find(function (it) { return it.id === id; }); }
+
+  var REPEAT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>';
+  var SIREN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18v-5a5 5 0 0 1 10 0v5"/><rect x="5" y="18" width="14" height="3" rx="1"/><path d="M12 2.5v2M4.6 5.6l1.4 1.4M19.4 5.6L18 7M2.5 12h2M19.5 12h2"/></svg>';
+
+  // ---- 길게 눌러 순서 바꾸기 ----
+  var press = null;
+  function blockScroll(ev) { if (drag) ev.preventDefault(); }
+  function clearPress() {
+    if (!press) return;
+    clearTimeout(press.timer);
+    document.removeEventListener("pointermove", onPressMove);
+    document.removeEventListener("pointerup", onPressEnd);
+    document.removeEventListener("pointercancel", onPressEnd);
+    press = null;
+  }
+  function onPressMove(ev) {
+    if (!press) return;
+    if (!drag) {
+      var dx = ev.clientX - press.sx, dy = ev.clientY - press.sy;
+      if (press.swipe) { updateSwipe(dx); return; }
+      if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+        clearTimeout(press.timer);
+        startSwipe();
+        updateSwipe(dx);
+        return;
+      }
+      if (Math.abs(dx) > 8 || Math.abs(dy) > 8) clearPress();
+      return;
+    }
+    var ul = drag.li.parentNode;
+    drag.li.style.transform = "translateY(" + (ev.clientY - drag.y0) + "px) scale(1.02)";
+    var r = drag.li.getBoundingClientRect();
+    var center = r.top + r.height / 2;
+    var next = drag.li.nextElementSibling, prev = drag.li.previousElementSibling;
+    var before = drag.li.offsetTop;
+    if (next) {
+      var nr = next.getBoundingClientRect();
+      if (center > nr.top + nr.height / 2) { ul.insertBefore(next, drag.li); drag.y0 += drag.li.offsetTop - before; }
+    }
+    if (prev && drag.li.previousElementSibling === prev) {
+      var pr = prev.getBoundingClientRect();
+      if (center < pr.top + pr.height / 2) { ul.insertBefore(drag.li, prev); drag.y0 += drag.li.offsetTop - before; }
+    }
+    drag.li.style.transform = "translateY(" + (ev.clientY - drag.y0) + "px) scale(1.02)";
+  }
+  function onPressEnd(ev) {
+    if (press && press.swipe) {
+      var sw = press;
+      clearPress();
+      finishSwipe(sw, ev && ev.type === "pointercancel");
+      return;
+    }
+    var wasDrag = drag;
+    clearPress();
+    if (!wasDrag) return;
+    document.removeEventListener("touchmove", blockScroll, { passive: false });
+    wasDrag.li.style.transform = "";
+    wasDrag.li.classList.remove("dragging");
+    drag = null;
+    var ids = Array.prototype.map.call(wasDrag.li.parentNode.children, function (el) { return +el.dataset.id; });
+    var slots = [], byId = {};
+    state.items.forEach(function (it, i) { byId[it.id] = it; if (ids.indexOf(it.id) !== -1) slots.push(i); });
+    if (slots.length === ids.length) {
+      slots.forEach(function (slot, k) { state.items[slot] = byId[ids[k]]; });
+      save();
+    }
+    render();
+  }
+
+  // ---- 옆으로 밀기: 왼쪽 = 삭제, 오른쪽 = 수정 ----
+  function swipeLimit(row) { return Math.min(110, row.offsetWidth * 0.3); }
+  function startSwipe() {
+    press.swipe = true;
+    press.dx = 0;
+    var bg = document.createElement("div");
+    bg.className = "swipe-bg";
+    bg.setAttribute("aria-hidden", "true");
+    bg.innerHTML = '<span class="sw-del">삭제</span><span class="sw-edit">수정</span>';
+    bg.style.height = press.row.offsetHeight + "px";
+    press.li.insertBefore(bg, press.row);
+    press.bg = bg;
+    press.li.classList.add("swiping");
+    press.row.style.transition = "none";
+  }
+  function updateSwipe(dx) {
+    if (press.onDelete && dx > 0) dx = 0;   // 완료 목록은 왼쪽(삭제)만
+    var lim = swipeLimit(press.row);
+    // 한계를 넘으면 살짝 무겁게 끌리도록
+    var shown = Math.abs(dx) > lim ? (dx > 0 ? 1 : -1) * (lim + (Math.abs(dx) - lim) * 0.35) : dx;
+    press.dx = dx;
+    press.row.style.transform = "translateX(" + shown + "px)";
+    press.bg.classList.toggle("del", dx < 0);
+    press.bg.classList.toggle("edit", dx > 0);
+    var ready = Math.abs(dx) >= lim;
+    if (ready && !press.ready && navigator.vibrate) { try { navigator.vibrate(10); } catch (e) {} }
+    press.ready = ready;
+    press.bg.classList.toggle("ready", ready);
+  }
+  function endSwipeVisual(sw) {
+    sw.row.style.transition = "transform .22s ease";
+    sw.row.style.transform = "";
+    setTimeout(function () {
+      if (sw.bg && sw.bg.parentNode) sw.bg.remove();
+      sw.li.classList.remove("swiping");
+      sw.row.style.transition = "";
+    }, 240);
+  }
+  function finishSwipe(sw, cancelled) {
+    var lim = swipeLimit(sw.row);
+    if (!cancelled && sw.dx <= -lim) {
+      sw.row.style.transition = "transform .2s ease";
+      sw.row.style.transform = "translateX(-" + sw.row.offsetWidth + "px)";
+      setTimeout(function () { if (sw.onDelete) sw.onDelete(); else deleteWithUndo(sw.item); }, 200);
+    } else if (!cancelled && sw.dx >= lim && !sw.onDelete) {
+      sw.bg.remove();
+      editId = sw.item.id;
+      openId = null;
+      render();   // 손을 뗀 그 순간 바로 입력칸을 열어야 아이폰 키보드가 올라온다
+    } else {
+      endSwipeVisual(sw);
+    }
+  }
+
+  // ---- 삭제 + 되돌리기 ----
+  var toast = document.getElementById("toast");
+  var toastMsg = document.getElementById("toast-msg");
+  var toastTimer = null, undoFn = null;
+  function showUndo(msg, fn) {
+    toastMsg.textContent = msg;
+    undoFn = fn;
+    toast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toast.hidden = true; undoFn = null; }, 5000);
+  }
+  function shortText(t) { return t.length > 14 ? t.slice(0, 14) + "…" : t; }
+  function deleteWithUndo(item) {
+    var idx = state.items.indexOf(item);
+    if (idx === -1) return;
+    state.items.splice(idx, 1);
+    if (openId === item.id) openId = null;
+    save();
+    render();
+    showUndo("‘" + shortText(item.text) + "’ 삭제했어요", function () {
+      state.items.splice(Math.min(idx, state.items.length), 0, item);
+      save();
+      render();
+    });
+  }
+  function deleteDoneRecord(idx) {
+    var arr = state.history && state.history[currentDay];
+    if (!arr || !arr[idx]) return;
+    var e = arr.splice(idx, 1)[0];
+    if (!arr.length) delete state.history[currentDay];
+    save();
+    render();
+    showUndo("‘" + shortText(e.text) + "’ 기록을 지웠어요", function () {
+      var a2 = state.history[currentDay] || (state.history[currentDay] = []);
+      a2.splice(Math.min(idx, a2.length), 0, e);
+      save();
+      render();
+    });
+  }
+  document.getElementById("toast-undo").addEventListener("click", function () {
+    if (!undoFn) return;
+    var f = undoFn;
+    undoFn = null;
+    toast.hidden = true;
+    clearTimeout(toastTimer);
+    f();
+  });
+
+  function attachSwipeDelete(row, li, onDelete) {
+    row.addEventListener("pointerdown", function (e) {
+      if (e.target.closest("button, input, label")) return;
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      clearPress();
+      press = { sx: e.clientX, sy: e.clientY, row: row, li: li, onDelete: onDelete };
+      document.addEventListener("pointermove", onPressMove);
+      document.addEventListener("pointerup", onPressEnd);
+      document.addEventListener("pointercancel", onPressEnd);
+    });
+  }
+
+  function attachPress(row, li, item) {
+    row.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+    row.addEventListener("pointerdown", function (e) {
+      if (e.target.closest("button, input, label")) return;
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      if (editId === item.id) return;
+      clearPress();
+      press = { sx: e.clientX, sy: e.clientY, row: row, li: li, item: item };
+      press.timer = setTimeout(function () {
+        drag = { li: li, y0: press.sy };
+        li.classList.add("dragging");
+        document.addEventListener("touchmove", blockScroll, { passive: false });
+        if (navigator.vibrate) { try { navigator.vibrate(15); } catch (err) {} }
+      }, 450);
+      document.addEventListener("pointermove", onPressMove);
+      document.addEventListener("pointerup", onPressEnd);
+      document.addEventListener("pointercancel", onPressEnd);
+    });
+  }
+
+  function makeItem(item) {
+    var li = document.createElement("li");
+    li.className = "item";
+    li.dataset.id = item.id;
+    if (item.urgent && !item.repeat) li.classList.add("urgent");
+    var editing = editId === item.id;
+    var row = document.createElement("div");
+    row.className = "row";
+    attachPress(row, li, item);
+
+    var btn = document.createElement("button");
+    btn.className = "check";
+    btn.type = "button";
+    btn.setAttribute("aria-label", "완료: " + item.text);
+    btn.innerHTML = CHECK;
+    if (viewDay > currentDay || editing) { btn.disabled = true; }
+    if (viewDay > currentDay) btn.setAttribute("aria-label", "예정된 일: " + item.text);
+    btn.addEventListener("click", function () { complete(item.id, li); });
+    row.appendChild(btn);
+
+    if (editing) {
+      var inp = document.createElement("input");
+      inp.type = "text";
+      inp.className = "edit-input";
+      inp.id = "edit-" + item.id;
+      inp.maxLength = 200;
+      inp.value = item.text;
+      inp.setAttribute("aria-label", "할 일 수정");
+      row.appendChild(inp);
+      li.appendChild(row);
+
+      var panel = document.createElement("div");
+      panel.className = "settings";
+      var lab = document.createElement("label");
+      lab.className = "toggle";
+      var cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.id = "edit-repeat-" + item.id;
+      cb.checked = !!item.repeat;
+      var cbText = document.createElement("span");
+      cbText.innerHTML = '<span class="repeat-mark">' + REPEAT + '</span>매일 반복';
+      lab.appendChild(cb);
+      lab.appendChild(cbText);
+
+      var actions = document.createElement("div");
+      actions.className = "actions";
+      var cancel = document.createElement("button");
+      cancel.type = "button";
+      cancel.className = "small-btn";
+      cancel.textContent = "취소";
+      var ok = document.createElement("button");
+      ok.type = "button";
+      ok.className = "small-btn primary";
+      ok.textContent = "저장";
+      actions.appendChild(cancel);
+      actions.appendChild(ok);
+      panel.appendChild(lab);
+      panel.appendChild(actions);
+      li.appendChild(panel);
+
+      var commit = function () {
+        var v = inp.value.trim();
+        var changed = false;
+        if (v && v !== item.text) { item.text = v; delete item.example; changed = true; }
+        if (!!item.repeat !== cb.checked) {
+          if (cb.checked) item.repeat = true; else delete item.repeat;
+          changed = true;
+        }
+        editId = null;
+        if (changed) save();
+        render();
+      };
+      var stop = function () { editId = null; render(); };
+      inp.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") { e.preventDefault(); commit(); }
+        else if (e.key === "Escape") { stop(); }
+      });
+      ok.addEventListener("click", commit);
+      cancel.addEventListener("click", stop);
+      return li;
+    }
+
+    var span = document.createElement("span");
+    span.className = "text";
+    if (item.repeat) {
+      var rm = document.createElement("span");
+      rm.className = "repeat-mark";
+      rm.setAttribute("role", "img");
+      rm.setAttribute("aria-label", "매일 반복");
+      rm.innerHTML = REPEAT;
+      span.appendChild(rm);
+    }
+    span.appendChild(document.createTextNode(item.text));
+    row.appendChild(span);
+
+    if (item.date && item.date < currentDay && !item.repeat) {
+      var od = document.createElement("span");
+      od.className = "tag";
+      od.textContent = "밀린 일";
+      row.appendChild(od);
+    }
+    if (item.example) {
+      var ex = document.createElement("span");
+      ex.className = "tag";
+      ex.textContent = "예시";
+      row.appendChild(ex);
+    }
+
+    if (item.repeat) {   // 매일 하는 일은 사이렌 없이
+      li.appendChild(row);
+      return li;
+    }
+    var sir = document.createElement("button");
+    sir.type = "button";
+    sir.className = "siren" + (item.urgent ? " on" : "");
+    sir.setAttribute("aria-pressed", item.urgent ? "true" : "false");
+    sir.setAttribute("aria-label", (item.urgent ? "긴급 해제: " : "긴급으로 표시: ") + item.text);
+    sir.innerHTML = SIREN;
+    sir.addEventListener("click", function () {
+      if (item.urgent) delete item.urgent; else item.urgent = true;
+      save();
+      render();
+    });
+    row.appendChild(sir);
+    li.appendChild(row);
+    return li;
+  }
+
+  function render() {
+    loading.hidden = loaded;
+    if (!loaded) {
+      gDaily.hidden = true; gOnce.hidden = true; empty.hidden = true; todayDone.hidden = true; historySection.hidden = true;
+      return;
+    }
+    var future = viewDay > currentDay;
+    var active = future
+      ? state.items.filter(function (it) { return it.date === viewDay || (it.repeat && (!it.date || it.date <= viewDay)); })
+      : state.items.filter(function (it) { return (!it.date || it.date <= currentDay) && !isDoneToday(it); });
+    document.body.classList.toggle("future", future);
+    input.placeholder = future ? "이 날 할 일을 미리 추가" : "할 일을 입력하고 Enter";
+    document.getElementById("empty-title").textContent = future ? "이 날 예정된 일이 없어요" : "오늘 할 일을 모두 끝냈어요";
+    document.getElementById("empty-body").textContent = future ? "아래 입력칸에서 미리 추가할 수 있어요." : "";
+
+    var daily = active.filter(function (it) { return it.repeat; });
+    var once = active.filter(function (it) { return !it.repeat; });
+    var dailyTotal = future ? daily.length
+      : state.items.filter(function (it) { return it.repeat && (!it.date || it.date <= currentDay); }).length;
+    var dailyDone = dailyTotal - daily.length;
+
+    listDaily.innerHTML = "";
+    daily.forEach(function (it) { listDaily.appendChild(makeItem(it, false)); });
+    list.innerHTML = "";
+    once.forEach(function (it) { list.appendChild(makeItem(it, false)); });
+
+    gDaily.hidden = daily.length === 0;
+    dailyNote.hidden = true;
+    document.getElementById("daily-count").textContent = future ? dailyTotal + "개" : dailyDone + " / " + dailyTotal + " 완료";
+    gOnce.hidden = once.length === 0;
+    document.getElementById("once-title").textContent = future ? "이 날만 하는 일" : "오늘만 하는 일";
+    document.getElementById("once-count").textContent = once.length + "개";
+
+    remain.textContent = active.length;
+    empty.hidden = active.length !== 0;
+    renderTodayDone();
+    renderHistory();
+    renderCal();
+    renderMorning();
+    if (editId !== null) {
+      var ei = document.getElementById("edit-" + editId);
+      if (ei && document.activeElement !== ei) { ei.focus(); try { ei.setSelectionRange(ei.value.length, ei.value.length); } catch (err) {} }
+    }
+    if (!weatherStarted) { weatherStarted = true; startWeather(); }
+  }
+
+  function restoreDone(idx) {
+    var arr = state.history && state.history[currentDay];
+    if (!arr || !arr[idx]) return;
+    var e = arr.splice(idx, 1)[0];
+    if (!arr.length) delete state.history[currentDay];
+    var it = find(e.id);
+    if (it) {
+      if (it.doneDate === currentDay) it.doneDate = null;
+    } else {
+      var back = { id: e.id, text: e.text, repeat: !!e.repeat };
+      if (e.urgent) back.urgent = true;
+      state.items.push(back);   // 원래 자리는 기억하지 않아 맨 아래로 돌아간다
+    }
+    state.cleared = Math.max(0, state.cleared - 1);
+    save();
+    render();
+  }
+  function renderTodayDone() {
+    var entries = (state.history && state.history[currentDay]) || [];
+    cleared.textContent = entries.length;
+    todayDoneCount.textContent = entries.length;
+    doneToggle.setAttribute("aria-expanded", showDone ? "true" : "false");
+    doneToggle.querySelector(".chev").textContent = showDone ? "▴" : "▾";
+    todayDone.hidden = !showDone;
+    todayDoneList.innerHTML = "";
+    if (!entries.length) {
+      var li0 = document.createElement("li");
+      li0.className = "item";
+      var r0 = document.createElement("div");
+      r0.className = "row";
+      var t0 = document.createElement("span");
+      t0.className = "text";
+      t0.style.color = "var(--muted)";
+      t0.textContent = "아직 끝낸 일이 없어요.";
+      r0.appendChild(t0);
+      li0.appendChild(r0);
+      todayDoneList.appendChild(li0);
+      return;
+    }
+    entries.forEach(function (e, idx) {
+      var li = document.createElement("li");
+      li.className = "item";
+      var row = document.createElement("div");
+      row.className = "row";
+      var mark = document.createElement("span");
+      mark.className = "done-mark";
+      mark.innerHTML = CHECK;
+      var t = document.createElement("span");
+      t.className = "text";
+      if (e.repeat) {
+        var rm = document.createElement("span");
+        rm.className = "repeat-mark";
+        rm.setAttribute("role", "img");
+        rm.setAttribute("aria-label", "매일 반복");
+        rm.innerHTML = REPEAT;
+        t.appendChild(rm);
+      }
+      t.appendChild(document.createTextNode(e.text));
+      row.appendChild(mark);
+      row.appendChild(t);
+      var back = document.createElement("button");
+      back.type = "button";
+      back.className = "undo-btn";
+      back.textContent = "↺";
+      back.setAttribute("aria-label", "할 일로 되돌리기: " + e.text);
+      back.addEventListener("click", function () { restoreDone(idx); });
+      row.appendChild(back);
+      li.appendChild(row);
+      attachSwipeDelete(row, li, function () { deleteDoneRecord(idx); });
+      todayDoneList.appendChild(li);
+    });
+  }
+  doneToggle.addEventListener("click", function () { showDone = !showDone; renderTodayDone(); });
+
+  // ---- 아침의 한 줄 ----
+  var mView = document.getElementById("m-view");
+  var mForm = document.getElementById("m-form");
+  var mInput = document.getElementById("m-input");
+  var mText = document.getElementById("m-text");
+  function todayLine() { return (state.lines && state.lines[currentDay]) || ""; }
+  var morningEl = document.getElementById("morning");
+  function renderMorning() {
+    var past = viewDay < currentDay;
+    if (past) {
+      // 지난 날짜: 그날 쓴 한 줄을 읽기 전용으로 보여준다
+      var pt = (state.lines && state.lines[viewDay]) || "";
+      if (!mForm.hidden) { mForm.hidden = true; mView.hidden = false; }
+      morningEl.hidden = !pt;
+      mText.textContent = pt;
+      mText.classList.remove("placeholder");
+      mView.classList.add("readonly");
+      mView.tabIndex = -1;
+      mView.setAttribute("aria-label", "그날 아침의 한 줄: " + pt);
+      return;
+    }
+    morningEl.hidden = false;
+    mView.classList.remove("readonly");
+    mView.removeAttribute("tabindex");
+    var t = todayLine();
+    mText.textContent = t || "눌러서 적어 보세요";
+    mText.classList.toggle("placeholder", !t);
+    mView.setAttribute("aria-label", t ? "아침의 한 줄 고치기: " + t : "아침의 한 줄 쓰기");
+  }
+  function openMorning() {
+    if (!loaded || viewDay !== currentDay) return;
+    mInput.value = todayLine();
+    mView.hidden = true;
+    mForm.hidden = false;
+    mInput.focus();
+  }
+  var mDone = false;
+  function closeMorning(keep) {
+    if (mForm.hidden) return;
+    if (keep) {
+      var v = mInput.value.trim();
+      if (!state.lines) state.lines = {};
+      if (v !== todayLine()) {
+        if (v) state.lines[currentDay] = v; else delete state.lines[currentDay];
+        save();
+      }
+    }
+    mForm.hidden = true;
+    mView.hidden = false;
+    renderMorning();
+  }
+  mView.addEventListener("click", openMorning);
+  mForm.addEventListener("submit", function (e) { e.preventDefault(); closeMorning(true); });
+  mInput.addEventListener("blur", function () { closeMorning(true); });
+  mInput.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") { e.preventDefault(); closeMorning(false); }
+  });
+  function closeDone() { if (showDone) { showDone = false; renderTodayDone(); } }
+  document.addEventListener("pointerdown", function (e) {
+    if (!showDone) return;
+    if (todayDone.contains(e.target) || doneToggle.contains(e.target) || toast.contains(e.target)) return;
+    closeDone();
+  });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && showDone) { closeDone(); doneToggle.focus(); } });
+
+  function complete(id, li) {
+    if (li.classList.contains("done")) return;
+    li.classList.add("done");
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setTimeout(function () {
+      li.classList.add("leaving");
+      setTimeout(function () {
+        var item = find(id);
+        if (item) logDone(item);
+        if (item && item.repeat) {
+          item.doneDate = currentDay;
+        } else {
+          state.items = state.items.filter(function (it) { return it.id !== id; });
+        }
+        state.cleared += 1;
+        if (openId === id) openId = null;
+        save();
+        render();
+      }, reduce ? 0 : 350);
+    }, reduce ? 150 : 450);
+  }
+
+  document.getElementById("add-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (!loaded) return;
+    var text = input.value.trim();
+    if (!text) { input.focus(); return; }
+    var fresh = { id: state.nextId++, text: text, repeat: newRepeat.checked };
+    if (viewDay > currentDay) fresh.date = viewDay;
+    state.items.push(fresh);
+    save();
+    render();
+    input.value = "";
+    input.focus();
+  });
+
+  // 날짜가 바뀌면 반복 항목을 다시 보여준다 (저장은 다음 변경 때 함께)
+  function checkDay() {
+    var d = localDay();
+    if (d !== currentDay) {
+      if (viewDay === currentDay) viewDay = d;
+      currentDay = d;
+      state.clearedDate = d;
+      state.cleared = 0;
+      setDateLabel();
+      render();
+    }
+  }
+  setInterval(checkDay, 60000);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) checkDay(); });
+
+  setDateLabel();
+  render();
+  init();
+})();
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+}
+</script>
+</body>
+</html>
