@@ -682,6 +682,11 @@ header { z-index: 7; }
 body::after { display: none; }
 .check { border-color: rgba(138, 138, 142, .55); }
 li.item.dragging { box-shadow: 0 10px 28px rgba(0, 0, 0, .18); }
+
+.credit{margin:6px 0 0;text-align:center;font-size:0.6875rem;color:var(--muted)}
+.credit a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+
+.w-info .credit{margin:1px 0 0;text-align:left;font-size:0.5625rem;line-height:1.2;opacity:.8}
 </style>
 </head>
 <body>
@@ -694,6 +699,7 @@ li.item.dragging { box-shadow: 0 10px 28px rgba(0, 0, 0, .18); }
         <div class="w-info">
           <div class="w-phrase"><span id="w-phrase">불러오는 중…</span><span class="w-place" id="w-place"></span></div>
           <div class="w-meta" id="w-meta"></div>
+        <p class="credit">날씨: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a></p>
         </div>
         <button class="small-btn" id="w-change" type="button">위치</button>
       </div>
