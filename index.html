@@ -720,6 +720,110 @@ li.item.urgent:not(.done) .text { color: var(--danger); }
 }
 .mood-opt:hover { background: var(--accent-soft); }
 .mood-opt:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+/* 요일 반복 */
+.day-picker { display: flex; gap: 4px; flex-wrap: wrap; }
+.day-picker[hidden] { display: none; }
+.day-chip {
+  width: 34px; height: 34px; padding: 0; border-radius: 50%; cursor: pointer;
+  font: inherit; font-size: 0.8125rem; color: var(--muted);
+  background: transparent; border: 1px solid var(--line);
+}
+.day-chip.sun { color: var(--danger); }
+.day-chip.on { background: var(--fg); border-color: var(--fg); color: var(--bg); font-weight: 600; }
+.day-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#add-form .day-picker { padding-left: 4px; }
+li.item .settings .day-picker { flex-basis: 100%; order: 1; }
+li.item .settings .actions { order: 2; margin-left: auto; }
+.days-tag {
+  display: inline-block; margin-left: 8px; padding: 1px 7px; border-radius: 999px; vertical-align: 1px;
+  font-size: 0.6875rem; font-weight: 500; color: var(--muted); border: 1px solid var(--line); white-space: nowrap;
+}
+
+/* 달력에 기분 */
+.cal-day { height: 38px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
+.cal-mood {
+  font-size: 0.8125rem; line-height: 1;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+}
+
+/* 아침의 한 줄: 파란 글씨 */
+:root { --m-blue: #1d6fe8; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --m-blue: #5ea2ff; } }
+:root[data-theme="dark"] { --m-blue: #5ea2ff; }
+.m-text:not(.placeholder), #m-input { color: var(--m-blue); }
+#m-input { border-bottom-color: var(--m-blue); }
+
+/* 백업 */
+.backup { display: flex; justify-content: center; align-items: center; gap: 8px; color: var(--muted); font-size: 0.75rem; padding: 8px 0 4px; }
+.backup-btn { font: inherit; color: var(--muted); background: none; border: 0; padding: 6px 4px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.backup-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+body.past .backup, body.future .backup { display: none; }
+body:has(#new-repeat:checked) { padding-bottom: 186px; }
+body:has(#new-repeat:checked) .toast { bottom: calc(168px + env(safe-area-inset-bottom, 0px)); }
+
+/* 사용법 안내 */
+.title-row { flex: 1 1 100%; }
+.help-btn {
+  margin-left: auto; flex: none; width: 30px; height: 30px; border-radius: 50%; padding: 0; cursor: pointer;
+  font: inherit; font-size: 0.875rem; font-weight: 600; color: var(--muted);
+  background: transparent; border: 1px solid var(--line);
+}
+.help-btn:hover { color: var(--fg); border-color: var(--fg); }
+.help-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+body.guide-open { overflow: hidden; }
+.guide-back {
+  position: fixed; inset: 0; z-index: 30; display: flex; align-items: flex-end; justify-content: center;
+  padding: 16px; padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  background: rgba(0, 0, 0, .38);
+  -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  animation: g-fade .2s ease;
+}
+.guide-back[hidden] { display: none; }
+.guide {
+  width: 100%; max-width: 440px; max-height: calc(100dvh - 32px); overflow-y: auto;
+  padding: 22px 20px 18px; border-radius: 28px;
+  background: var(--surface); color: var(--fg); border: 1px solid var(--line);
+  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, .35);
+  animation: g-up .28s cubic-bezier(.2, .8, .2, 1);
+}
+.guide-kicker { margin: 0; font-size: 0.75rem; font-weight: 600; color: var(--muted); }
+.guide h2 { margin: 2px 0 4px; font-family: var(--font-display); font-size: 1.375rem; font-weight: 700; letter-spacing: -0.02em; }
+.guide-lead { margin: 0 0 12px; font-size: 0.875rem; color: var(--muted); }
+.guide-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.guide-list li { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 0.8125rem; line-height: 1.35; color: var(--muted); }
+.guide-list li:first-child { border-top: 0; }
+.guide-list b { display: block; font-size: 0.9375rem; font-weight: 600; color: var(--fg); }
+.g-ico {
+  flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--sunken); color: var(--fg); font-size: 1rem; font-weight: 600;
+}
+.g-ico svg { width: 18px; height: 18px; }
+.g-small { font-size: 0.8125rem; }
+.g-circle { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--muted); }
+.g-del { background: var(--danger); color: #fff; }
+.g-edit { background: var(--fg); color: var(--bg); }
+.g-red { color: var(--danger); background: var(--danger-soft); }
+.guide-note { margin: 12px 0 14px; padding: 10px 12px; border-radius: 14px; background: var(--sunken); font-size: 0.8125rem; line-height: 1.45; color: var(--muted); }
+.guide-note b { color: var(--fg); font-weight: 600; }
+.guide-go {
+  width: 100%; height: 50px; border: 0; border-radius: 999px; cursor: pointer;
+  font: inherit; font-size: 1rem; font-weight: 600; background: var(--fg); color: var(--bg);
+}
+.guide-go:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@keyframes g-fade { from { opacity: 0; } }
+@keyframes g-up { from { transform: translateY(24px); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .guide-back, .guide { animation: none; } }
+@media (max-height: 720px) {
+  .guide { padding: 16px 18px 14px; }
+  .guide h2 { font-size: 1.25rem; }
+  .guide-lead { margin-bottom: 6px; }
+  .guide-list li { padding: 5px 0; }
+  .g-ico { width: 30px; height: 30px; }
+  .guide-note { margin: 8px 0 10px; padding: 8px 12px; }
+  .guide-go { height: 46px; }
+}
+.guide-go:focus:not(:focus-visible) { outline: none; }
 </style>
 </head>
 <body>
@@ -761,6 +865,7 @@ li.item.urgent:not(.done) .text { color: var(--danger); }
     <div class="title-row">
       <h1>오늘 할 일</h1>
       <button class="mood-btn" id="mood-btn" type="button" aria-expanded="false" aria-controls="mood-pop" aria-label="오늘의 기분 고르기"></button>
+      <button class="help-btn" id="help-btn" type="button" aria-label="사용법 보기">?</button>
     </div>
     <div class="mood-pop" id="mood-pop" role="dialog" aria-label="오늘의 기분" hidden>
       <div class="mood-grid" id="mood-grid"></div>
@@ -815,13 +920,41 @@ li.item.urgent:not(.done) .text { color: var(--danger); }
     <div id="history-list"></div>
   </section>
 
+  <div class="backup" id="backup">
+    <button type="button" class="backup-btn" id="backup-save">백업 저장</button>
+    <span aria-hidden="true">·</span>
+    <button type="button" class="backup-btn" id="backup-load">백업 불러오기</button>
+    <input type="file" id="backup-file" accept="application/json,.json" hidden>
+  </div>
+
+
+  <div class="guide-back" id="guide" hidden>
+    <div class="guide" role="dialog" aria-modal="true" aria-labelledby="guide-h">
+      <p class="guide-kicker">처음 오셨나요?</p>
+      <h2 id="guide-h">이렇게 써요</h2>
+      <p class="guide-lead">아래 칸에 할 일을 적고, 끝내면 동그라미를 누르세요.</p>
+      <ul class="guide-list">
+        <li><span class="g-ico"><span class="g-circle"></span></span><span><b>동그라미 누르기</b>완료! ‘오늘 완료’에 모이고 ↺로 되돌릴 수 있어요</span></li>
+        <li><span class="g-ico g-del">←</span><span><b>왼쪽으로 밀기</b>지우기</span></li>
+        <li><span class="g-ico g-edit">→</span><span><b>오른쪽으로 밀기</b>글자 고치기 · 반복 요일 바꾸기</span></li>
+        <li><span class="g-ico">↕</span><span><b>꾹 눌러서 끌기</b>순서 바꾸기</span></li>
+        <li><span class="g-ico g-red" id="g-siren"></span><span><b>사이렌</b>급한 일은 빨갛게 표시돼요</span></li>
+        <li><span class="g-ico" id="g-repeat"></span><span><b>반복 체크</b>매일, 또는 고른 요일마다 다시 나타나요</span></li>
+        <li><span class="g-ico g-small">27</span><span><b>날짜 누르기</b>달력으로 다른 날 보기 · 미리 적어 두기</span></li>
+        <li><span class="g-ico g-small">＋</span><span><b>제목 옆 ＋ · 아침의 한 줄</b>오늘의 기분과 한 줄 메모</span></li>
+      </ul>
+      <p class="guide-note">🔒 기록은 이 폰에만 저장돼요. 가끔 맨 아래 <b>백업 저장</b>을 눌러 두세요.</p>
+      <button class="guide-go" id="guide-go" type="button">시작하기</button>
+    </div>
+  </div>
   <div class="toast" id="toast" role="status" hidden>
     <span id="toast-msg"></span>
     <button class="toast-undo" id="toast-undo" type="button">되돌리기</button>
   </div>
 
   <form id="add-form" autocomplete="off">
-    <label class="toggle"><input id="new-repeat" type="checkbox"><span><span class="repeat-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></span>매일 반복</span></label>
+    <label class="toggle"><input id="new-repeat" type="checkbox"><span><span class="repeat-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></span>반복</span></label>
+    <div id="new-days-slot"></div>
     <div class="input-row">
       <input id="new-todo" type="text" placeholder="할 일을 입력하고 Enter" maxlength="200" aria-label="새 할 일">
       <button class="add" type="submit">추가</button>
@@ -852,11 +985,13 @@ li.item.urgent:not(.done) .text { color: var(--danger); }
   function defaultState() {
     return {
       items: [
-        { id: 1, text: "할 일을 적고 왼쪽 동그라미를 눌러 보세요", example: true },
-        { id: 2, text: "물 8잔 마시기", example: true, repeat: true },
-        { id: 3, text: "과제 제출 확인하기", example: true }
+        { id: 1, text: "동그라미를 누르면 완료돼요", example: true, date: currentDay },
+        { id: 3, text: "오른쪽으로 밀면 고칠 수 있어요 →", example: true, date: currentDay },
+        { id: 4, text: "← 왼쪽으로 밀면 지워져요", example: true, date: currentDay },
+        { id: 2, text: "물 8잔 마시기", example: true, repeat: true }
       ],
-      nextId: 4,
+      datedV2: true,
+      nextId: 5,
       clearedDate: currentDay,
       cleared: 0
     };
@@ -882,6 +1017,11 @@ li.item.urgent:not(.done) .text { color: var(--danger); }
     if (!state.history || typeof state.history !== "object") state.history = {};
     if (!state.lines || typeof state.lines !== "object") state.lines = {};
     if (!state.moods || typeof state.moods !== "object") state.moods = {};
+    state.items.forEach(function (it) {
+      if (!it.days) return;
+      var ok = Array.isArray(it.days) ? it.days.filter(function (n) { return n === (n | 0) && n >= 0 && n <= 6; }) : [];
+      if (!it.repeat || !ok.length || ok.length === 7) delete it.days; else it.days = ok;
+    });
     Object.keys(state.moods).sort().reverse().slice(90).forEach(function (k) { delete state.moods[k]; });
     Object.keys(state.lines).sort().reverse().slice(90).forEach(function (k) { delete state.lines[k]; });
     // 기록은 최근 90일만 보관한다
@@ -892,7 +1032,9 @@ li.item.urgent:not(.done) .text { color: var(--danger); }
   function logDone(item) {
     if (!state.history) state.history = {};
     var arr = state.history[currentDay] || (state.history[currentDay] = []);
-    arr.push({ id: item.id, text: item.text, repeat: !!item.repeat, urgent: !!item.urgent });
+    var rec = { id: item.id, text: item.text, repeat: !!item.repeat, urgent: !!item.urgent };
+    if (item.days) rec.days = item.days.slice();
+    arr.push(rec);
   }
   function unlogDone(id) {
     var arr = state.history && state.history[currentDay];
@@ -1249,7 +1391,7 @@ li.item.urgent:not(.done) .text { color: var(--danger); }
   function monthStart(key) { var d = parseKey(key); return new Date(d.getFullYear(), d.getMonth(), 1); }
   function hasMark(key) {
     if (state.history && state.history[key] && state.history[key].length) return true;
-    if (key > currentDay) return state.items.some(function (it) { return it.date === key; });
+    if (key > currentDay) return state.items.some(function (it) { return !it.repeat && it.date === key; });
     return false;
   }
   function renderCal() {
@@ -1275,11 +1417,22 @@ li.item.urgent:not(.done) .text { color: var(--danger); }
         btn.type = "button";
         btn.className = "cal-day" + (date.getDay() === 0 ? " sun" : "") +
           (key === currentDay ? " today" : "") + (key === viewDay ? " selected" : "");
-        btn.textContent = date.getDate();
-        btn.setAttribute("aria-label", (date.getMonth() + 1) + "월 " + date.getDate() + "일 " + WEEK[date.getDay()] + "요일");
+        var num = document.createElement("span");
+        num.className = "cal-n";
+        num.textContent = date.getDate();
+        btn.appendChild(num);
+        var md = state.moods && state.moods[key];
+        if (md) {
+          var me = document.createElement("span");
+          me.className = "cal-mood";
+          me.setAttribute("aria-hidden", "true");
+          me.textContent = md;
+          btn.appendChild(me);
+        }
+        btn.setAttribute("aria-label", (date.getMonth() + 1) + "월 " + date.getDate() + "일 " + WEEK[date.getDay()] + "요일" + (md ? ", 기분 " + md : ""));
         if (key === viewDay) btn.setAttribute("aria-current", "date");
         btn.disabled = key < minKey || key > maxKey;
-        if (hasMark(key)) {
+        if (!md && hasMark(key)) {
           var dot = document.createElement("span");
           dot.className = "dot";
           dot.setAttribute("aria-hidden", "true");
@@ -1308,6 +1461,58 @@ li.item.urgent:not(.done) .text { color: var(--danger); }
     if (!calEl.hidden && !calEl.contains(e.target) && !calBtn.contains(e.target)) setCal(false);
   });
   function isDoneToday(it) { return it.repeat && it.doneDate === currentDay; }
+  // 반복하는 일이 그 날에 나오는지: 시작일 이후 + (요일을 골랐다면) 그 요일
+  function repeatsOn(it, key) {
+    if (!it.repeat) return false;
+    if (it.date && it.date > key) return false;
+    if (it.days && it.days.length && it.days.length < 7) return it.days.indexOf(parseKey(key).getDay()) !== -1;
+    return true;
+  }
+  function daysLabel(days) {
+    if (!days || !days.length || days.length === 7) return "";
+    var d = days.slice().sort().join(",");
+    if (d === "1,2,3,4,5") return "평일";
+    if (d === "0,6") return "주말";
+    return [1, 2, 3, 4, 5, 6, 0].filter(function (n) { return days.indexOf(n) !== -1; })
+      .map(function (n) { return WEEK[n]; }).join("·");
+  }
+  // 요일 고르는 칩 줄. get()은 지금 고른 요일 배열을 돌려준다.
+  function makeDayPicker(initial) {
+    var wrap = document.createElement("div");
+    wrap.className = "day-picker";
+    wrap.setAttribute("role", "group");
+    wrap.setAttribute("aria-label", "반복할 요일");
+    var sel = (initial && initial.length) ? initial.slice() : [0, 1, 2, 3, 4, 5, 6];
+    var btns = [];
+    [1, 2, 3, 4, 5, 6, 0].forEach(function (n) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "day-chip" + (n === 0 ? " sun" : "");
+      b.textContent = WEEK[n];
+      b.setAttribute("aria-label", WEEK[n] + "요일");
+      b.addEventListener("click", function () {
+        var i = sel.indexOf(n);
+        if (i !== -1) { if (sel.length > 1) sel.splice(i, 1); }   // 최소 한 요일은 남긴다
+        else sel.push(n);
+        paint();
+      });
+      btns.push([n, b]);
+      wrap.appendChild(b);
+    });
+    function paint() {
+      btns.forEach(function (p) {
+        var on = sel.indexOf(p[0]) !== -1;
+        p[1].classList.toggle("on", on);
+        p[1].setAttribute("aria-pressed", on ? "true" : "false");
+      });
+    }
+    paint();
+    return {
+      el: wrap,
+      get: function () { return sel.length === 7 ? null : sel.slice().sort(); },
+      set: function (days) { sel = (days && days.length) ? days.slice() : [0, 1, 2, 3, 4, 5, 6]; paint(); }
+    };
+  }
   function find(id) { return state.items.find(function (it) { return it.id === id; }); }
 
   var REPEAT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>';
@@ -1439,6 +1644,7 @@ li.item.urgent:not(.done) .text { color: var(--danger); }
   function showUndo(msg, fn) {
     toastMsg.textContent = msg;
     undoFn = fn;
+    document.getElementById("toast-undo").hidden = !fn;
     toast.hidden = false;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () { toast.hidden = true; undoFn = null; }, 5000);
@@ -1552,9 +1758,12 @@ li.item.urgent:not(.done) .text { color: var(--danger); }
       cb.id = "edit-repeat-" + item.id;
       cb.checked = !!item.repeat;
       var cbText = document.createElement("span");
-      cbText.innerHTML = '<span class="repeat-mark">' + REPEAT + '</span>매일 반복';
+      cbText.innerHTML = '<span class="repeat-mark">' + REPEAT + '</span>반복';
       lab.appendChild(cb);
       lab.appendChild(cbText);
+      var editDays = makeDayPicker(item.days);
+      editDays.el.hidden = !cb.checked;
+      cb.addEventListener("change", function () { editDays.el.hidden = !cb.checked; });
 
       var actions = document.createElement("div");
       actions.className = "actions";
@@ -1569,6 +1778,7 @@ li.item.urgent:not(.done) .text { color: var(--danger); }
       actions.appendChild(cancel);
       actions.appendChild(ok);
       panel.appendChild(lab);
+      panel.appendChild(editDays.el);
       panel.appendChild(actions);
       li.appendChild(panel);
 
@@ -1585,6 +1795,13 @@ li.item.urgent:not(.done) .text { color: var(--danger); }
           }
           changed = true;
         }
+        if (cb.checked) {
+          var nd = editDays.get();
+          if (JSON.stringify(nd || null) !== JSON.stringify(item.days || null)) {
+            if (nd) item.days = nd; else delete item.days;
+            changed = true;
+          }
+        } else if (item.days) { delete item.days; changed = true; }
         editId = null;
         if (changed) save();
         render();
@@ -1610,6 +1827,13 @@ li.item.urgent:not(.done) .text { color: var(--danger); }
       span.appendChild(rm);
     }
     span.appendChild(document.createTextNode(item.text));
+    var dl = item.repeat ? daysLabel(item.days) : "";
+    if (dl) {
+      var dt = document.createElement("span");
+      dt.className = "days-tag";
+      dt.textContent = dl;
+      span.appendChild(dt);
+    }
     row.appendChild(span);
 
     if (item.date && item.date < currentDay && !item.repeat) {
@@ -1653,8 +1877,8 @@ li.item.urgent:not(.done) .text { color: var(--danger); }
     }
     var future = viewDay > currentDay;
     var active = future
-      ? state.items.filter(function (it) { return it.date === viewDay || (it.repeat && (!it.date || it.date <= viewDay)); })
-      : state.items.filter(function (it) { return it.repeat ? ((!it.date || it.date <= currentDay) && !isDoneToday(it)) : (it.date === currentDay); });
+      ? state.items.filter(function (it) { return it.repeat ? repeatsOn(it, viewDay) : it.date === viewDay; })
+      : state.items.filter(function (it) { return it.repeat ? (repeatsOn(it, currentDay) && !isDoneToday(it)) : (it.date === currentDay); });
     document.body.classList.toggle("future", future);
     input.placeholder = future ? "이 날 할 일을 미리 추가" : "할 일을 입력하고 Enter";
     document.getElementById("empty-title").textContent = future ? "이 날 예정된 일이 없어요" : "오늘 할 일을 모두 끝냈어요";
@@ -1663,7 +1887,7 @@ li.item.urgent:not(.done) .text { color: var(--danger); }
     var daily = active.filter(function (it) { return it.repeat; });
     var once = active.filter(function (it) { return !it.repeat; });
     var dailyTotal = future ? daily.length
-      : state.items.filter(function (it) { return it.repeat && (!it.date || it.date <= currentDay); }).length;
+      : state.items.filter(function (it) { return repeatsOn(it, currentDay); }).length;
     var dailyDone = dailyTotal - daily.length;
 
     listDaily.innerHTML = "";
@@ -1792,6 +2016,7 @@ li.item.urgent:not(.done) .text { color: var(--danger); }
     } else {
       var back = { id: e.id, text: e.text, repeat: !!e.repeat };
       if (!back.repeat) back.date = currentDay;
+      else if (e.days) back.days = e.days.slice();
       if (e.urgent) back.urgent = true;
       state.items.push(back);   // 원래 자리는 기억하지 않아 맨 아래로 돌아간다
     }
@@ -1943,12 +2168,93 @@ li.item.urgent:not(.done) .text { color: var(--danger); }
     }, reduce ? 150 : 450);
   }
 
+  // ---- 백업 / 복원 ----
+  function backupName() { return "todo-backup-" + currentDay + ".json"; }
+  document.getElementById("backup-save").addEventListener("click", function () {
+    var data = { app: "todo", version: 1, savedAt: new Date().toISOString(), state: state };
+    var json = JSON.stringify(data, null, 2);
+    var file = null;
+    try { file = new File([json], backupName(), { type: "application/json" }); } catch (e) {}
+    var mobile = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);   // 아이폰·아이패드만 공유 창, 갤럭시는 바로 다운로드
+    if (mobile && file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: "오늘 할 일 백업" }).catch(function () {});
+      return;
+    }
+    var url = URL.createObjectURL(new Blob([json], { type: "application/json" }));
+    var a = document.createElement("a");
+    a.href = url; a.download = backupName();
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+    showUndo("다운로드 폴더에 저장했어요", null);
+  });
+  var backupFile = document.getElementById("backup-file");
+  document.getElementById("backup-load").addEventListener("click", function () { backupFile.value = ""; backupFile.click(); });
+  backupFile.addEventListener("change", function () {
+    var f = backupFile.files && backupFile.files[0];
+    if (!f) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      var data;
+      try { data = JSON.parse(reader.result); } catch (e) { data = null; }
+      var next = data && (data.state || data);
+      if (!next || !Array.isArray(next.items)) { showUndo("백업 파일이 아니에요", null); return; }
+      if (!window.confirm("지금 기록을 백업 파일 내용으로 바꿀까요?")) return;
+      var before = clone(state);
+      state = next;
+      normalize();
+      save();
+      editId = null;
+      render();
+      showUndo("백업을 불러왔어요", function () { state = before; save(); render(); });
+    };
+    reader.readAsText(f);
+  });
+
+  // ---- 처음 사용법 안내 ----
+  var GUIDE_KEY = "todo-guide-seen";
+  var guideEl = document.getElementById("guide");
+  var helpBtn = document.getElementById("help-btn");
+  document.getElementById("g-siren").innerHTML = SIREN;
+  document.getElementById("g-repeat").innerHTML = REPEAT;
+  var guideReturn = null;
+  function openGuide() {
+    guideReturn = document.activeElement;
+    setCal(false); closeMood();
+    guideEl.hidden = false;
+    document.body.classList.add("guide-open");
+    document.getElementById("guide-go").focus();
+  }
+  function closeGuide() {
+    if (guideEl.hidden) return;
+    guideEl.hidden = true;
+    document.body.classList.remove("guide-open");
+    try { localStorage.setItem(GUIDE_KEY, "1"); } catch (e) {}
+    if (guideReturn && guideReturn.focus && guideReturn !== document.body) guideReturn.focus();
+  }
+  helpBtn.addEventListener("click", openGuide);
+  document.getElementById("guide-go").addEventListener("click", closeGuide);
+  guideEl.addEventListener("click", function (e) { if (e.target === guideEl) closeGuide(); });
+  document.addEventListener("keydown", function (e) {
+    if (guideEl.hidden) return;
+    if (e.key === "Escape") { closeGuide(); return; }
+    if (e.key === "Tab") { e.preventDefault(); document.getElementById("guide-go").focus(); }
+  });
+  var guideSeen = false;
+  try { guideSeen = localStorage.getItem(GUIDE_KEY) === "1"; } catch (e) { guideSeen = true; }
+  if (!guideSeen) openGuide();
+
+  var newDays = makeDayPicker(null);
+  document.getElementById("new-days-slot").appendChild(newDays.el);
+  newDays.el.hidden = !newRepeat.checked;
+  newRepeat.addEventListener("change", function () { newDays.el.hidden = !newRepeat.checked; });
+
   document.getElementById("add-form").addEventListener("submit", function (e) {
     e.preventDefault();
     if (!loaded) return;
     var text = input.value.trim();
     if (!text) { input.focus(); return; }
     var fresh = { id: state.nextId++, text: text, repeat: newRepeat.checked };
+    if (fresh.repeat) { var nd = newDays.get(); if (nd) fresh.days = nd; }
     if (viewDay > currentDay) fresh.date = viewDay;
     else if (!fresh.repeat) fresh.date = currentDay;
     state.items.push(fresh);
