@@ -690,6 +690,36 @@ li.item.dragging { box-shadow: 0 10px 28px rgba(0, 0, 0, .18); }
 body:not(.past) #g-missed{display:none!important}
 #list-missed .text{color:var(--muted)}
 #list-missed .small-btn{flex:none}
+
+/* 오늘의 기분 */
+.title-row { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.mood-btn {
+  flex: none; width: 40px; height: 40px; border-radius: 50%; padding: 0; cursor: pointer;
+  font: inherit; font-size: 1.5rem; line-height: 1; color: var(--muted);
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", var(--font-body);
+  background: var(--glass); border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-hi), var(--glass-shadow);
+  display: grid; place-items: center;
+}
+.mood-btn.empty { font-family: var(--font-body); font-size: 1.75rem; font-weight: 300; border: 0; box-shadow: none; background: transparent; width: 32px; }
+li.item.urgent:not(.done) .text { color: var(--danger); }
+.mood-btn.readonly { cursor: default; }
+.mood-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mood-pop {
+  position: absolute; left: 0; top: calc(100% + 8px); z-index: 8; width: min(320px, 100%);
+  padding: 12px 12px 10px; border-radius: 24px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+  background: var(--glass-strong); border: 1px solid var(--glass-border);
+  -webkit-backdrop-filter: blur(22px) saturate(180%); backdrop-filter: blur(22px) saturate(180%);
+  box-shadow: inset 0 1px 0 var(--glass-hi), 0 18px 44px -10px rgba(0, 0, 0, .28);
+}
+.mood-grid { width: 100%; display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+.mood-opt {
+  aspect-ratio: 1; min-height: 44px; font-size: 1.625rem; line-height: 1; padding: 0; cursor: pointer;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  background: transparent; border: 0; border-radius: 50%;
+}
+.mood-opt:hover { background: var(--accent-soft); }
+.mood-opt:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 </style>
 </head>
 <body>
@@ -728,7 +758,14 @@ body:not(.past) #g-missed{display:none!important}
   </div>
 
   <header>
-    <h1>오늘 할 일</h1>
+    <div class="title-row">
+      <h1>오늘 할 일</h1>
+      <button class="mood-btn" id="mood-btn" type="button" aria-expanded="false" aria-controls="mood-pop" aria-label="오늘의 기분 고르기"></button>
+    </div>
+    <div class="mood-pop" id="mood-pop" role="dialog" aria-label="오늘의 기분" hidden>
+      <div class="mood-grid" id="mood-grid"></div>
+      <button class="small-btn" id="mood-clear" type="button">지우기</button>
+    </div>
     <div class="datenav">
       <button class="nav-btn" id="prev-day" type="button" aria-label="이전 날">‹</button>
       <button class="date date-btn" id="today" type="button" aria-expanded="false" aria-controls="cal" aria-label="달력 열기"></button>
@@ -844,6 +881,8 @@ body:not(.past) #g-missed{display:none!important}
     }
     if (!state.history || typeof state.history !== "object") state.history = {};
     if (!state.lines || typeof state.lines !== "object") state.lines = {};
+    if (!state.moods || typeof state.moods !== "object") state.moods = {};
+    Object.keys(state.moods).sort().reverse().slice(90).forEach(function (k) { delete state.moods[k]; });
     Object.keys(state.lines).sort().reverse().slice(90).forEach(function (k) { delete state.lines[k]; });
     // 기록은 최근 90일만 보관한다
     Object.keys(state.history).sort().reverse().slice(90).forEach(function (k) { delete state.history[k]; });
@@ -1255,7 +1294,7 @@ body:not(.past) #g-missed{display:none!important}
     calEl.hidden = !open;
     calBtn.setAttribute("aria-expanded", open ? "true" : "false");
     calBtn.setAttribute("aria-label", open ? "달력 닫기" : "달력 열기");
-    if (open) { calMonth = monthStart(viewDay); renderCal(); }
+    if (open) { closeMood(); calMonth = monthStart(viewDay); renderCal(); }
   }
   calBtn.addEventListener("click", function () { setCal(calEl.hidden); });
   document.getElementById("cal-prev").addEventListener("click", function () {
@@ -1538,7 +1577,12 @@ body:not(.past) #g-missed{display:none!important}
         var changed = false;
         if (v && v !== item.text) { item.text = v; delete item.example; changed = true; }
         if (!!item.repeat !== cb.checked) {
-          if (cb.checked) item.repeat = true; else delete item.repeat;
+          if (cb.checked) item.repeat = true;
+          else {
+            delete item.repeat;
+            item.date = viewDay > currentDay ? viewDay : currentDay;
+            delete item.doneDate;
+          }
           changed = true;
         }
         editId = null;
@@ -1636,6 +1680,7 @@ body:not(.past) #g-missed{display:none!important}
 
     remain.textContent = active.length;
     empty.hidden = active.length !== 0;
+    renderMood();
     renderMissed();
     renderTodayDone();
     renderHistory();
@@ -1647,6 +1692,62 @@ body:not(.past) #g-missed{display:none!important}
     }
     if (!weatherStarted) { weatherStarted = true; startWeather(); }
   }
+
+  // ---- 오늘의 기분 ----
+  var MOODS = [
+    ["😀", "기분 좋아요"], ["🥰", "사랑스러워요"], ["😎", "자신 있어요"], ["🤩", "설레요"], ["😌", "평온해요"], ["🥳", "신나요"],
+    ["😴", "졸려요"], ["🥱", "피곤해요"], ["😐", "그저 그래요"], ["🤔", "고민돼요"], ["😕", "찜찜해요"], ["😢", "슬퍼요"],
+    ["😭", "울적해요"], ["😰", "불안해요"], ["😤", "답답해요"], ["😡", "화나요"], ["🤒", "몸이 안 좋아요"], ["😮‍💨", "한숨 나와요"]
+  ];
+  var moodBtn = document.getElementById("mood-btn");
+  var moodPop = document.getElementById("mood-pop");
+  var moodGrid = document.getElementById("mood-grid");
+  function moodOf(day) { return (state.moods && state.moods[day]) || ""; }
+  function closeMood() {
+    if (moodPop.hidden) return;
+    moodPop.hidden = true;
+    moodBtn.setAttribute("aria-expanded", "false");
+  }
+  function renderMood() {
+    var m = moodOf(viewDay);
+    var editable = viewDay === currentDay;
+    moodBtn.hidden = !editable && !m;
+    moodBtn.classList.toggle("empty", !m);
+    moodBtn.classList.toggle("readonly", !editable);
+    moodBtn.textContent = m || "＋";
+    moodBtn.disabled = !editable;
+    moodBtn.setAttribute("aria-label", m ? (editable ? "오늘의 기분 바꾸기: " : "그날의 기분: ") + m : "오늘의 기분 고르기");
+    if (!editable) closeMood();
+  }
+  MOODS.forEach(function (pair) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "mood-opt";
+    b.textContent = pair[0];
+    b.setAttribute("aria-label", pair[1]);
+    b.addEventListener("click", function () {
+      if (viewDay !== currentDay) return;
+      state.moods[currentDay] = pair[0];
+      save(); closeMood(); renderMood();
+    });
+    moodGrid.appendChild(b);
+  });
+  document.getElementById("mood-clear").addEventListener("click", function () {
+    if (viewDay !== currentDay) return;
+    delete state.moods[currentDay];
+    save(); closeMood(); renderMood();
+  });
+  moodBtn.addEventListener("click", function () {
+    if (viewDay !== currentDay) return;
+    var open = moodPop.hidden;
+    if (open) setCal(false);
+    moodPop.hidden = !open;
+    moodBtn.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  document.addEventListener("pointerdown", function (e) {
+    if (!moodPop.hidden && !moodPop.contains(e.target) && !moodBtn.contains(e.target)) closeMood();
+  });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !moodPop.hidden) { closeMood(); moodBtn.focus(); } });
 
   function renderMissed() {
     var gM = document.getElementById("g-missed");
@@ -1690,6 +1791,7 @@ body:not(.past) #g-missed{display:none!important}
       if (it.doneDate === currentDay) it.doneDate = null;
     } else {
       var back = { id: e.id, text: e.text, repeat: !!e.repeat };
+      if (!back.repeat) back.date = currentDay;
       if (e.urgent) back.urgent = true;
       state.items.push(back);   // 원래 자리는 기억하지 않아 맨 아래로 돌아간다
     }
