@@ -1,5 +1,5 @@
 // 인터넷이 없어도 앱이 열리도록 화면 파일을 보관한다 (날씨는 보관하지 않음)
-var CACHE = "todo-app-v9";
+var CACHE = "todo-app-v29";
 var FILES = ["./", "index.html", "manifest.webmanifest", "icon-180.png", "icon-192.png", "icon-512.png"];
 self.addEventListener("install", function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(FILES); }));

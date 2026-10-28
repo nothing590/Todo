@@ -61,7 +61,7 @@ body {
   line-height: 1.5;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-block: 24px 140px;
+  padding-block: 24px 8.75rem;
 }
 .wrap { max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
 
@@ -521,7 +521,7 @@ li.item.swiping .row { position: relative; z-index: 1; background: var(--surface
 /* 되돌리기 알림 */
 .toast {
   position: fixed; left: 50%; transform: translateX(-50%); z-index: 7;
-  bottom: calc(124px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(7.75rem + env(safe-area-inset-bottom, 0px));
   display: flex; align-items: center; gap: 12px; max-width: calc(100% - 32px);
   padding: 6px 6px 6px 18px; border-radius: 999px;
   background: var(--glass-strong); border: 1px solid var(--glass-border);
@@ -696,7 +696,7 @@ body:not(.past) #g-missed{display:none!important}
 .mood-btn {
   flex: none; width: 40px; height: 40px; border-radius: 50%; padding: 0; cursor: pointer;
   font: inherit; font-size: 1.5rem; line-height: 1; color: var(--muted);
-  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", var(--font-body);
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", var(--font-body);
   background: var(--glass); border: 1px solid var(--glass-border);
   box-shadow: inset 0 1px 0 var(--glass-hi), var(--glass-shadow);
   display: grid; place-items: center;
@@ -715,7 +715,7 @@ li.item.urgent:not(.done) .text { color: var(--danger); }
 .mood-grid { width: 100%; display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
 .mood-opt {
   aspect-ratio: 1; min-height: 44px; font-size: 1.625rem; line-height: 1; padding: 0; cursor: pointer;
-  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
   background: transparent; border: 0; border-radius: 50%;
 }
 .mood-opt:hover { background: var(--accent-soft); }
@@ -744,7 +744,7 @@ li.item .settings .actions { order: 2; margin-left: auto; }
 .cal-day { height: 38px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
 .cal-mood {
   font-size: 0.8125rem; line-height: 1;
-  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
 }
 
 /* 아침의 한 줄: 파란 글씨 */
@@ -759,8 +759,8 @@ li.item .settings .actions { order: 2; margin-left: auto; }
 .backup-btn { font: inherit; color: var(--muted); background: none; border: 0; padding: 6px 4px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 .backup-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 body.past .backup, body.future .backup { display: none; }
-body:has(#new-repeat:checked) { padding-bottom: 186px; }
-body:has(#new-repeat:checked) .toast { bottom: calc(168px + env(safe-area-inset-bottom, 0px)); }
+body:has(#new-repeat:checked) { padding-bottom: 11.75rem; }
+body:has(#new-repeat:checked) .toast { bottom: calc(10.5rem + env(safe-area-inset-bottom, 0px)); }
 
 /* 사용법 안내 */
 .title-row { flex: 1 1 100%; }
@@ -824,6 +824,290 @@ body.guide-open { overflow: hidden; }
   .guide-go { height: 46px; }
 }
 .guide-go:focus:not(:focus-visible) { outline: none; }
+
+/* 글꼴 고르기 */
+body { font-size: 1rem; }
+.font-btn {
+  flex: none; height: 30px; padding: 0 10px; border-radius: 999px; cursor: pointer;
+  font: inherit; font-size: 0.8125rem; font-weight: 600; color: var(--muted);
+  background: transparent; border: 1px solid var(--line); margin-left: auto;
+}
+.font-btn + .help-btn { margin-left: 0; }
+.font-btn:hover, .font-btn[aria-expanded="true"] { color: var(--fg); border-color: var(--fg); }
+.font-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.font-pop {
+  position: absolute; right: 0; top: calc(100% + 8px); z-index: 8; width: min(340px, 100%);
+  padding: 14px 12px 10px; border-radius: 24px;
+  background: var(--glass-strong); border: 1px solid var(--glass-border);
+  -webkit-backdrop-filter: blur(22px) saturate(180%); backdrop-filter: blur(22px) saturate(180%);
+  box-shadow: inset 0 1px 0 var(--glass-hi), 0 18px 44px -10px rgba(0, 0, 0, .28);
+}
+.font-pop-h { margin: 0 4px 8px; font-size: 0.75rem; font-weight: 600; color: var(--muted); font-family: -apple-system, "Apple SD Gothic Neo", system-ui, sans-serif; }
+.font-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.font-opt {
+  min-height: 46px; padding: 6px 10px; border-radius: 14px; cursor: pointer; text-align: left;
+  font-size: 0.9375rem; line-height: 1.2; color: var(--fg);
+  background: var(--surface); border: 1px solid var(--line);
+}
+.font-opt[data-id=""] { font-family: -apple-system, "Apple SD Gothic Neo", system-ui, sans-serif; }
+.font-opt.on { background: var(--fg); border-color: var(--fg); color: var(--bg); }
+.font-opt:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.font-pop-note { margin: 8px 4px 0; font-size: 0.6875rem; color: var(--muted); font-family: -apple-system, "Apple SD Gothic Neo", system-ui, sans-serif; }
+
+/* ===== 설정 페이지 ===== */
+.gear-btn {
+  margin-left: auto; flex: none; width: 38px; height: 38px; border-radius: 50%; padding: 0; cursor: pointer;
+  display: grid; place-items: center; color: var(--muted);
+  background: transparent; border: 1px solid var(--line);
+}
+.gear-btn svg { width: 20px; height: 20px; }
+.gear-btn:hover { color: var(--fg); border-color: var(--fg); }
+.gear-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+body.settings-open { overflow: hidden; }
+.settings-page {
+  position: fixed; inset: 0; z-index: 20; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  background: var(--bg); color: var(--fg);
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) calc(28px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  animation: sp-in .26s cubic-bezier(.2, .8, .2, 1);
+}
+.settings-page[hidden] { display: none; }
+@keyframes sp-in { from { transform: translateX(28px); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .settings-page { animation: none; } }
+.sp-inner { max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+.sp-head { position: relative; display: flex; align-items: center; justify-content: center; min-height: 44px; margin-bottom: 4px; }
+.sp-head h2 { margin: 0; font-family: var(--font-display); font-size: 1.125rem; font-weight: 700; }
+.sp-back {
+  position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  display: flex; align-items: center; gap: 2px; height: 40px; padding: 0 12px 0 6px; border-radius: 999px; cursor: pointer;
+  font: inherit; font-size: 0.9375rem; color: var(--fg); background: transparent; border: 0;
+}
+.sp-back span { font-size: 1.5rem; line-height: 1; margin-top: -2px; }
+.sp-back:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sp-sec {
+  padding: 16px; border-radius: 24px;
+  background: var(--glass); border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-hi), var(--glass-shadow);
+}
+.sp-sec h3 { margin: 0 0 12px; font-size: 0.75rem; font-weight: 600; letter-spacing: .08em; color: var(--muted); }
+.sp-note { margin: 10px 2px 0; font-size: 0.75rem; line-height: 1.5; color: var(--muted); }
+.sp-note-top { margin: 0 2px 12px; font-size: 0.8125rem; }
+.sp-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.sp-btn {
+  min-height: 46px; padding: 0 14px; border-radius: 14px; cursor: pointer;
+  font: inherit; font-size: 0.9375rem; font-weight: 600; color: var(--fg);
+  background: var(--surface); border: 1px solid var(--line);
+}
+.sp-btn:active { transform: scale(.98); }
+.sp-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sp-wide { width: 100%; }
+.sp-credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.sp-credit { margin: 4px 0 0; text-align: center; font-size: 0.6875rem; color: var(--muted); }
+.theme-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.theme-opt {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px 2px 6px; border-radius: 16px; cursor: pointer;
+  font: inherit; font-size: 0.8125rem; color: var(--fg); background: transparent; border: 1.5px solid transparent;
+}
+.theme-sw { position: relative; width: 44px; height: 44px; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 1px rgba(127, 127, 127, .35); display: flex; transform: rotate(-45deg); }
+.theme-sw i { flex: 1; }
+.theme-opt.on { border-color: var(--fg); }
+.theme-opt.on .theme-name { font-weight: 700; }
+.theme-opt:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.size-seg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 4px; border-radius: 16px; background: var(--sunken); }
+.size-opt {
+  min-height: 42px; border-radius: 12px; cursor: pointer; padding: 0 4px;
+  font-family: inherit; color: var(--muted); background: transparent; border: 0; white-space: nowrap;
+}
+.size-opt.on { background: var(--surface); color: var(--fg); font-weight: 700; box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
+.size-opt:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.sp-preview { margin: 12px 2px 0; font-family: var(--font-display); font-size: 1rem; color: var(--m-blue); }
+.settings-page .font-opt { background: var(--surface); }
+.settings-page .font-opt.on { background: var(--fg); border-color: var(--fg); color: var(--bg); }
+#w-change { white-space: nowrap; flex: none; }
+
+/* 추가 화면 색상 (라이트 위에 덧입힘) */
+:root[data-theme="light"][data-palette="cream"] {
+  --bg: #f7f1e6; --surface: #fffaf1; --sunken: #f0e8d9; --fg: #2a241c; --muted: #8c8172;
+  --line: rgba(80, 60, 30, .12); --accent-soft: rgba(80, 60, 30, .07);
+  --glass: rgba(255, 250, 241, .9); --glass-strong: rgba(255, 250, 241, .97); --glass-border: rgba(80, 60, 30, .08); --glass-hi: rgba(255, 255, 255, .9);
+  --ink: #2a241c; --accent: #2a241c; --done: #2a241c;
+}
+:root[data-theme="light"][data-palette="sky"] {
+  --bg: #e9f2fb; --surface: #f7fbff; --sunken: #dfeaf6; --fg: #13243a; --muted: #6f8197;
+  --line: rgba(20, 50, 90, .12); --accent-soft: rgba(20, 50, 90, .07);
+  --glass: rgba(247, 251, 255, .9); --glass-strong: rgba(247, 251, 255, .97); --glass-border: rgba(20, 50, 90, .08); --glass-hi: rgba(255, 255, 255, .9);
+  --ink: #13243a; --accent: #13243a; --done: #13243a;
+}
+:root[data-theme="light"][data-palette="pink"] {
+  --bg: #fbeef1; --surface: #fff8fa; --sunken: #f5e2e7; --fg: #3a1f26; --muted: #9a7d85;
+  --line: rgba(110, 40, 60, .12); --accent-soft: rgba(110, 40, 60, .07);
+  --glass: rgba(255, 248, 250, .9); --glass-strong: rgba(255, 248, 250, .97); --glass-border: rgba(110, 40, 60, .08); --glass-hi: rgba(255, 255, 255, .9);
+  --ink: #3a1f26; --accent: #3a1f26; --done: #3a1f26;
+}
+:root[data-theme="light"][data-palette="mint"] {
+  --bg: #e8f5ef; --surface: #f7fdfa; --sunken: #dcefe5; --fg: #16302a; --muted: #6f8a80;
+  --line: rgba(20, 70, 50, .12); --accent-soft: rgba(20, 70, 50, .07);
+  --glass: rgba(247, 253, 250, .9); --glass-strong: rgba(247, 253, 250, .97); --glass-border: rgba(20, 70, 50, .08); --glass-hi: rgba(255, 255, 255, .9);
+  --ink: #16302a; --accent: #16302a; --done: #16302a;
+}
+:root[data-theme="dark"][data-palette="navy"] {
+  --bg: #0b1220; --surface: #162033; --sunken: #0f1829; --fg: #eef2fa; --muted: #8a96ad;
+  --line: rgba(255, 255, 255, .10); --accent-soft: rgba(255, 255, 255, .08);
+  --glass: rgba(22, 32, 51, .9); --glass-strong: rgba(22, 32, 51, .97); --glass-border: rgba(255, 255, 255, .08); --glass-hi: rgba(255, 255, 255, .06);
+  --ink: #eef2fa; --accent: #eef2fa; --done: #eef2fa; --on-fill: #0b1220; --on-ink: #0b1220;
+}
+
+/* 추가 화면 색상 2 */
+:root[data-theme="light"][data-palette="lavender"] {
+  --bg: #f1effa; --surface: #fbfaff; --sunken: #e8e5f5; --fg: #241f3a; --muted: #807a99;
+  --line: rgba(50, 40, 100, .12); --accent-soft: rgba(50, 40, 100, .07);
+  --glass: rgba(251, 250, 255, .9); --glass-strong: rgba(251, 250, 255, .97); --glass-border: rgba(50, 40, 100, .08); --glass-hi: rgba(255, 255, 255, .9);
+  --ink: #241f3a; --accent: #241f3a; --done: #241f3a;
+}
+:root[data-theme="light"][data-palette="lemon"] {
+  --bg: #fbf7df; --surface: #fffdf0; --sunken: #f3eecd; --fg: #2f2a10; --muted: #8a8463;
+  --line: rgba(90, 80, 20, .12); --accent-soft: rgba(90, 80, 20, .07);
+  --glass: rgba(255, 253, 240, .9); --glass-strong: rgba(255, 253, 240, .97); --glass-border: rgba(90, 80, 20, .08); --glass-hi: rgba(255, 255, 255, .9);
+  --ink: #2f2a10; --accent: #2f2a10; --done: #2f2a10;
+}
+:root[data-theme="light"][data-palette="peach"] {
+  --bg: #fdf0e8; --surface: #fff9f5; --sunken: #f7e4d8; --fg: #3a2418; --muted: #9a8174;
+  --line: rgba(120, 60, 30, .12); --accent-soft: rgba(120, 60, 30, .07);
+  --glass: rgba(255, 249, 245, .9); --glass-strong: rgba(255, 249, 245, .97); --glass-border: rgba(120, 60, 30, .08); --glass-hi: rgba(255, 255, 255, .9);
+  --ink: #3a2418; --accent: #3a2418; --done: #3a2418;
+}
+:root[data-theme="light"][data-palette="stone"] {
+  --bg: #eeeff1; --surface: #fafafb; --sunken: #e4e6e9; --fg: #1e2228; --muted: #7d838c;
+  --line: rgba(30, 40, 55, .12); --accent-soft: rgba(30, 40, 55, .07);
+  --glass: rgba(250, 250, 251, .9); --glass-strong: rgba(250, 250, 251, .97); --glass-border: rgba(30, 40, 55, .08); --glass-hi: rgba(255, 255, 255, .9);
+  --ink: #1e2228; --accent: #1e2228; --done: #1e2228;
+}
+:root[data-theme="light"][data-palette="sand"] {
+  --bg: #efe9df; --surface: #f9f5ee; --sunken: #e5ddd0; --fg: #2c261e; --muted: #887d6f;
+  --line: rgba(70, 55, 35, .12); --accent-soft: rgba(70, 55, 35, .07);
+  --glass: rgba(249, 245, 238, .9); --glass-strong: rgba(249, 245, 238, .97); --glass-border: rgba(70, 55, 35, .08); --glass-hi: rgba(255, 255, 255, .9);
+  --ink: #2c261e; --accent: #2c261e; --done: #2c261e;
+}
+:root[data-theme="dark"][data-palette="choco"] {
+  --bg: #1a1210; --surface: #2a1f1b; --sunken: #211814; --fg: #f3e9e3; --muted: #a8958b;
+  --line: rgba(255, 255, 255, .10); --accent-soft: rgba(255, 255, 255, .08);
+  --glass: rgba(42, 31, 27, .9); --glass-strong: rgba(42, 31, 27, .97); --glass-border: rgba(255, 255, 255, .08); --glass-hi: rgba(255, 255, 255, .06);
+  --ink: #f3e9e3; --accent: #f3e9e3; --done: #f3e9e3; --on-fill: #1a1210; --on-ink: #1a1210;
+}
+:root[data-theme="dark"][data-palette="forest"] {
+  --bg: #0d1712; --surface: #18261e; --sunken: #121e18; --fg: #e8f2ec; --muted: #8aa196;
+  --line: rgba(255, 255, 255, .10); --accent-soft: rgba(255, 255, 255, .08);
+  --glass: rgba(24, 38, 30, .9); --glass-strong: rgba(24, 38, 30, .97); --glass-border: rgba(255, 255, 255, .08); --glass-hi: rgba(255, 255, 255, .06);
+  --ink: #e8f2ec; --accent: #e8f2ec; --done: #e8f2ec; --on-fill: #0d1712; --on-ink: #0d1712;
+}
+:root[data-theme="dark"][data-palette="violet"] {
+  --bg: #130f1f; --surface: #221b33; --sunken: #1a1528; --fg: #efeaf9; --muted: #9b93b3;
+  --line: rgba(255, 255, 255, .10); --accent-soft: rgba(255, 255, 255, .08);
+  --glass: rgba(34, 27, 51, .9); --glass-strong: rgba(34, 27, 51, .97); --glass-border: rgba(255, 255, 255, .08); --glass-hi: rgba(255, 255, 255, .06);
+  --ink: #efeaf9; --accent: #efeaf9; --done: #efeaf9; --on-fill: #130f1f; --on-ink: #130f1f;
+}
+:root[data-theme="dark"][data-palette="wine"] {
+  --bg: #1a0d11; --surface: #2b161c; --sunken: #221116; --fg: #f6e9ec; --muted: #ad9198;
+  --line: rgba(255, 255, 255, .10); --accent-soft: rgba(255, 255, 255, .08);
+  --glass: rgba(43, 22, 28, .9); --glass-strong: rgba(43, 22, 28, .97); --glass-border: rgba(255, 255, 255, .08); --glass-hi: rgba(255, 255, 255, .06);
+  --ink: #f6e9ec; --accent: #f6e9ec; --done: #f6e9ec; --on-fill: #1a0d11; --on-ink: #1a0d11;
+}
+
+/* 설정: 색상 묶음 제목, 강조색 */
+.theme-group { grid-column: 1 / -1; margin: 4px 2px -2px; font-size: 0.6875rem; font-weight: 600; color: var(--muted); }
+.theme-group:first-child { margin-top: 0; }
+.accent-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.accent-opt {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 6px 0 4px; border-radius: 14px; cursor: pointer;
+  font: inherit; font-size: 0.75rem; color: var(--fg); background: transparent; border: 1.5px solid transparent; white-space: nowrap;
+}
+.accent-dot { width: 32px; height: 32px; border-radius: 50%; box-shadow: 0 0 0 1px rgba(127, 127, 127, .3); display: grid; place-items: center; }
+.accent-dot svg { width: 16px; height: 16px; opacity: 0; }
+.accent-opt.on { border-color: var(--fg); }
+.accent-opt.on .accent-dot svg { opacity: 1; }
+.accent-opt:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* 할 일 목록을 위로: 윗부분 여백 줄이기, '오늘 완료'를 날짜 줄 오른쪽으로 */
+body { padding-top: 12px; }
+.wrap { gap: 12px; }
+header { row-gap: 4px; }
+header .status { margin-left: auto; align-self: center; padding: 0; }
+header .done-pop { width: min(300px, calc(100vw - 32px)); }
+
+/* ---- v15: 진행률, 강조색은 글자·체크에만, 지난 기록 숨김 ---- */
+.prog { margin-top: 10px; }
+.prog-bar { height: 5px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.prog-bar i { display: block; height: 100%; width: 0; border-radius: 999px; background: var(--accent); transition: width .4s ease; }
+.prog-l { display: flex; justify-content: space-between; margin-top: 6px; font-size: 0.75rem; color: var(--muted); }
+.prog-l b { color: var(--fg); font-weight: 700; font-size: 0.875rem; }
+li.item.done .check { background: transparent; border-color: rgba(138, 138, 142, .55); }
+li.item.done .check svg path { stroke: var(--accent); }
+.done-mark { background: transparent; }
+.done-mark svg path { stroke: var(--accent); }
+.cal-day.selected { background: transparent; color: var(--accent); font-weight: 800; box-shadow: none; }
+.cal-day.selected .dot { background: var(--accent); }
+.cal-day.today:not(.selected) { box-shadow: none; }
+body:not(.past) .history { display: none !important; }
+li.item.urgent .row { border-radius: 20px; }
+header .prog { flex: 0 0 100%; width: 100%; }
+.prog-l { gap: 8px; }
+
+/* ---- 진행률은 입력칸 위, 날씨 줄이기, 더 많이 보이게 ---- */
+#add-form .prog { margin: 0 4px 2px; order: -2; }
+#add-form .prog-bar { height: 4px; }
+#add-form .prog-l { margin-top: 4px; font-size: 0.6875rem; }
+header .prog { display: none; }
+.weather { gap: 2px; }
+.w-main { gap: 6px; padding: 0; }
+.w-ico { width: 14px; height: 14px; }
+.w-temp { font-size: 0.8125rem; }
+.w-info { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 6px; }
+.w-phrase { font-size: 0.6875rem; }
+.w-meta { font-size: 0.5625rem; }
+.w-msg { font-size: 0.625rem; padding: 0; line-height: 1.3; }
+.w-retry { font-size: 0.625rem; padding: 2px 9px; }
+#w-change { font-size: 0.625rem; padding: 0 7px; }
+.top-row { gap: 0; }
+.wrap { gap: 8px; }
+.row { padding-top: 8px; padding-bottom: 8px; min-height: 46px; }
+.group { gap: 4px; }
+ul.list { border-radius: 22px; }
+.title-row h1 { font-size: 1.25rem; }
+header { row-gap: 2px; }
+.morning .m-text { font-size: 0.875rem; }
+
+/* 진행률 원 (설정 옆) + 더 큰 제목 */
+#add-form .prog { display: none; }
+.title-row h1 { font-size: 1.875rem; letter-spacing: -.02em; }
+.prog-ring { position: relative; width: 44px; height: 44px; flex: none; margin-left: auto; }
+.prog-ring svg { width: 100%; height: 100%; display: block; }
+.prog-ring circle { fill: none; stroke-width: 4; }
+.prog-ring .pr-bg { stroke: var(--line); }
+.prog-ring .pr-fg { stroke: var(--accent); stroke-linecap: round; transition: stroke-dashoffset .4s ease; }
+.pr-t { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 0.6875rem; font-weight: 700; color: var(--fg); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+
+/* 진행률: 제목 글씨가 왼쪽부터 색으로 채워짐 */
+@property --p { syntax: "<percentage>"; inherits: false; initial-value: 0%; }
+.prog-ring { display: none !important; }
+.title-row h1 {
+  font-size: 2.5rem; line-height: 1.1; font-weight: 800; letter-spacing: -.03em; white-space: nowrap;
+  --p: 0%; --h-off: #cfcfd4;
+  color: transparent;
+  background: linear-gradient(90deg, var(--accent) var(--p), var(--h-off) var(--p));
+  -webkit-background-clip: text; background-clip: text;
+  transition: --p .6s ease;
+}
+:root[data-theme="dark"] .title-row h1 { --h-off: #3f3f45; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .title-row h1 { --h-off: #3f3f45; } }
+
+/* 터치 화면: 손가락이 있던 자리에 hover 잔상이 남지 않게 */
+@media (hover: none) {
+  li.item:not(.done) .check:hover { border-color: rgba(138, 138, 142, .55); }
+  li.item:not(.done) .check:hover svg { opacity: 0; }
+  .more:hover, .more[aria-expanded="false"]:hover, .siren:hover { background: transparent; color: var(--muted); }
+  .small-btn:hover { border-color: var(--line); }
+  .nav-btn:hover:not(:disabled), .date-btn:hover, .status-btn:hover { background: transparent; }
+}
+.gear-btn { margin-left: auto; }
 </style>
 </head>
 <body>
@@ -836,7 +1120,6 @@ body.guide-open { overflow: hidden; }
         <div class="w-info">
           <div class="w-phrase"><span id="w-phrase">불러오는 중…</span><span class="w-place" id="w-place"></span></div>
           <div class="w-meta" id="w-meta"></div>
-        <p class="credit">날씨: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a></p>
         </div>
         <button class="small-btn" id="w-change" type="button">위치</button>
       </div>
@@ -865,7 +1148,11 @@ body.guide-open { overflow: hidden; }
     <div class="title-row">
       <h1>오늘 할 일</h1>
       <button class="mood-btn" id="mood-btn" type="button" aria-expanded="false" aria-controls="mood-pop" aria-label="오늘의 기분 고르기"></button>
-      <button class="help-btn" id="help-btn" type="button" aria-label="사용법 보기">?</button>
+      <div class="prog-ring" id="prog" role="img" aria-label="" hidden>
+        <svg viewBox="0 0 40 40" aria-hidden="true"><circle class="pr-bg" cx="20" cy="20" r="16"></circle><circle class="pr-fg" id="prog-i" cx="20" cy="20" r="16" transform="rotate(-90 20 20)"></circle></svg>
+        <span class="pr-t" id="prog-l"></span>
+      </div>
+      <button class="gear-btn" id="settings-btn" type="button" aria-label="설정 열기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
     </div>
     <div class="mood-pop" id="mood-pop" role="dialog" aria-label="오늘의 기분" hidden>
       <div class="mood-grid" id="mood-grid"></div>
@@ -876,6 +1163,14 @@ body.guide-open { overflow: hidden; }
       <button class="date date-btn" id="today" type="button" aria-expanded="false" aria-controls="cal" aria-label="달력 열기"></button>
       <button class="nav-btn" id="next-day" type="button" aria-label="다음 날">›</button>
       <button class="small-btn" id="go-today" type="button" hidden>오늘</button>
+    </div>
+    <div class="status">
+      <span hidden>남은 일 <strong id="remain">0</strong>개</span>
+      <button class="status-btn" id="done-toggle" type="button" aria-expanded="false" aria-controls="today-done">오늘 완료 <strong id="cleared">0</strong>개 <span class="chev" aria-hidden="true">▾</span></button>
+      <section class="done-section done-pop" id="today-done" hidden>
+        <h2>오늘 완료한 일 · <span id="today-done-count">0</span></h2>
+        <ul class="list" id="today-done-list" aria-label="오늘 완료한 일"></ul>
+      </section>
     </div>
     <section class="cal" id="cal" aria-label="달력" hidden>
       <div class="cal-head">
@@ -889,14 +1184,6 @@ body.guide-open { overflow: hidden; }
   </header>
 
 
-  <div class="status">
-    <span hidden>남은 일 <strong id="remain">0</strong>개</span>
-    <button class="status-btn" id="done-toggle" type="button" aria-expanded="false" aria-controls="today-done">오늘 완료 <strong id="cleared">0</strong>개 <span class="chev" aria-hidden="true">▾</span></button>
-    <section class="done-section done-pop" id="today-done" hidden>
-      <h2>오늘 완료한 일 · <span id="today-done-count">0</span></h2>
-      <ul class="list" id="today-done-list" aria-label="오늘 완료한 일"></ul>
-    </section>
-  </div>
   <p class="note" id="note" role="status" hidden></p>
 
   <div class="empty" id="loading">목록을 불러오는 중이에요…</div>
@@ -920,12 +1207,54 @@ body.guide-open { overflow: hidden; }
     <div id="history-list"></div>
   </section>
 
-  <div class="backup" id="backup">
-    <button type="button" class="backup-btn" id="backup-save">백업 저장</button>
-    <span aria-hidden="true">·</span>
-    <button type="button" class="backup-btn" id="backup-load">백업 불러오기</button>
-    <input type="file" id="backup-file" accept="application/json,.json" hidden>
-  </div>
+  <section class="settings-page" id="settings" role="dialog" aria-modal="true" aria-labelledby="settings-h" hidden>
+    <div class="sp-inner">
+      <div class="sp-head">
+        <button type="button" class="sp-back" id="settings-close" aria-label="설정 닫기"><span aria-hidden="true">‹</span> 돌아가기</button>
+        <h2 id="settings-h">설정</h2>
+      </div>
+
+      <section class="sp-sec" aria-labelledby="sp-theme-h">
+        <h3 id="sp-theme-h">화면 색상</h3>
+        <div class="theme-grid" id="theme-grid"></div>
+      </section>
+
+      <section class="sp-sec" aria-labelledby="sp-accent-h">
+        <h3 id="sp-accent-h">강조색</h3>
+        <div class="accent-grid" id="accent-grid"></div>
+        <p class="sp-note">체크 표시 · 추가 버튼 · 선택한 날짜 색이에요</p>
+      </section>
+
+      <section class="sp-sec" aria-labelledby="sp-size-h">
+        <h3 id="sp-size-h">글자 크기</h3>
+        <div class="size-seg" id="size-seg" role="group" aria-labelledby="sp-size-h"></div>
+        <p class="sp-preview">오늘도 천천히, 꾸준히 ✓</p>
+      </section>
+
+      <section class="sp-sec" aria-labelledby="sp-font-h">
+        <h3 id="sp-font-h">글꼴</h3>
+        <div class="font-grid" id="font-grid"></div>
+        <p class="sp-note">모두 무료 글꼴이에요 · 처음 고를 때 한 번 내려받아요</p>
+      </section>
+
+      <section class="sp-sec" aria-labelledby="sp-backup-h">
+        <h3 id="sp-backup-h">백업</h3>
+        <p class="sp-note sp-note-top">기록은 이 폰에만 저장돼요. 폰을 바꾸기 전이나 가끔 백업 파일로 저장해 두세요.</p>
+        <div class="sp-row">
+          <button type="button" class="sp-btn" id="backup-save">백업 저장</button>
+          <button type="button" class="sp-btn" id="backup-load">백업 불러오기</button>
+        </div>
+        <input type="file" id="backup-file" accept="application/json,.json" hidden>
+      </section>
+
+      <section class="sp-sec" aria-labelledby="sp-help-h">
+        <h3 id="sp-help-h">도움말</h3>
+        <button type="button" class="sp-btn sp-wide" id="help-btn">사용법 다시 보기</button>
+      </section>
+
+      <p class="sp-credit">날씨: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> · 글꼴: Google Fonts, Pretendard</p>
+    </div>
+  </section>
 
 
   <div class="guide-back" id="guide" hidden>
@@ -942,8 +1271,9 @@ body.guide-open { overflow: hidden; }
         <li><span class="g-ico" id="g-repeat"></span><span><b>반복 체크</b>매일, 또는 고른 요일마다 다시 나타나요</span></li>
         <li><span class="g-ico g-small">27</span><span><b>날짜 누르기</b>달력으로 다른 날 보기 · 미리 적어 두기</span></li>
         <li><span class="g-ico g-small">＋</span><span><b>제목 옆 ＋ · 아침의 한 줄</b>오늘의 기분과 한 줄 메모</span></li>
+        <li><span class="g-ico" id="g-gear"></span><span><b>오른쪽 위 톱니바퀴</b>화면 색상 · 글자 크기 · 글꼴 · 백업</span></li>
       </ul>
-      <p class="guide-note">🔒 기록은 이 폰에만 저장돼요. 가끔 맨 아래 <b>백업 저장</b>을 눌러 두세요.</p>
+      <p class="guide-note">🔒 기록은 이 폰에만 저장돼요. 가끔 <b>톱니바퀴 → 백업 저장</b>을 눌러 두세요.</p>
       <button class="guide-go" id="guide-go" type="button">시작하기</button>
     </div>
   </div>
@@ -1017,6 +1347,10 @@ body.guide-open { overflow: hidden; }
     if (!state.history || typeof state.history !== "object") state.history = {};
     if (!state.lines || typeof state.lines !== "object") state.lines = {};
     if (!state.moods || typeof state.moods !== "object") state.moods = {};
+    if (state.font && typeof state.font !== "string") delete state.font;
+    if (state.theme && typeof state.theme !== "string") delete state.theme;
+    if (state.accent && typeof state.accent !== "string") delete state.accent;
+    if (state.textSize && typeof state.textSize !== "string") delete state.textSize;
     state.items.forEach(function (it) {
       if (!it.days) return;
       var ok = Array.isArray(it.days) ? it.days.filter(function (n) { return n === (n | 0) && n >= 0 && n <= 6; }) : [];
@@ -1447,7 +1781,7 @@ body.guide-open { overflow: hidden; }
     calEl.hidden = !open;
     calBtn.setAttribute("aria-expanded", open ? "true" : "false");
     calBtn.setAttribute("aria-label", open ? "달력 닫기" : "달력 열기");
-    if (open) { closeMood(); calMonth = monthStart(viewDay); renderCal(); }
+    if (open) { closeMood(); closeFont(); calMonth = monthStart(viewDay); renderCal(); }
   }
   calBtn.addEventListener("click", function () { setCal(calEl.hidden); });
   document.getElementById("cal-prev").addEventListener("click", function () {
@@ -1869,6 +2203,25 @@ body.guide-open { overflow: hidden; }
     return li;
   }
 
+  function renderProg(active, future) {
+    var done, total, left;
+    if (future) {
+      done = 0; total = active.length; left = total;
+    } else if (viewDay === currentDay) {
+      done = ((state.history && state.history[currentDay]) || []).length;
+      left = active.length; total = done + left;
+    } else {
+      done = ((state.history && state.history[viewDay]) || []).length;
+      left = state.items.filter(function (it) { return !it.repeat && it.date === viewDay; }).length;
+      total = done + left;
+    }
+    var h1 = document.querySelector(".title-row h1");
+    var pct = (total === 0 || future) ? 0 : Math.round(done / total * 100);
+    h1.style.setProperty("--p", pct + "%");
+    var txt = future ? total + "개 예정" : "완료 " + done + " / " + total + ", " + left + "개 남음";
+    h1.title = total === 0 ? "" : txt;
+    h1.setAttribute("aria-label", "오늘 할 일" + (total === 0 ? "" : ", " + txt));
+  }
   function render() {
     loading.hidden = loaded;
     if (!loaded) {
@@ -1903,8 +2256,11 @@ body.guide-open { overflow: hidden; }
     document.getElementById("once-count").textContent = once.length + "개";
 
     remain.textContent = active.length;
+    renderProg(active, future);
     empty.hidden = active.length !== 0;
     renderMood();
+    applyFont();
+    applyTheme();
     renderMissed();
     renderTodayDone();
     renderHistory();
@@ -1932,6 +2288,282 @@ body.guide-open { overflow: hidden; }
     moodPop.hidden = true;
     moodBtn.setAttribute("aria-expanded", "false");
   }
+  // ---- 글꼴 고르기 (모두 무료 오픈 라이선스 글꼴) ----
+  // g: 구글 폰트 이름(굵기 포함), css: 다른 CDN 주소, scale: 손글씨처럼 작아 보이는 글꼴은 조금 크게
+  var FONTS = [
+    { id: "", name: "기본", family: "" },
+    { id: "pretendard", name: "프리텐다드", family: '"Pretendard Variable", Pretendard', css: "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" },
+    { id: "plex", name: "IBM 플렉스", family: '"IBM Plex Sans KR"', g: "IBM+Plex+Sans+KR:wght@400;500;600" },
+    { id: "gowun-dodum", name: "고운돋움", family: '"Gowun Dodum"', g: "Gowun+Dodum" },
+    { id: "nanum-gothic", name: "나눔고딕", family: '"Nanum Gothic"', g: "Nanum+Gothic:wght@400;700" },
+    { id: "nanum-myeongjo", name: "나눔명조", family: '"Nanum Myeongjo"', g: "Nanum+Myeongjo:wght@400;700" },
+    { id: "gowun-batang", name: "고운바탕", family: '"Gowun Batang"', g: "Gowun+Batang:wght@400;700" },
+    { id: "jua", name: "주아", family: '"Jua"', g: "Jua" },
+    { id: "do-hyeon", name: "도현", family: '"Do Hyeon"', g: "Do+Hyeon" },
+    { id: "gaegu", name: "개구쟁이", family: '"Gaegu"', g: "Gaegu:wght@400;700", scale: 1.08 },
+    { id: "hi-melody", name: "하이멜로디", family: '"Hi Melody"', g: "Hi+Melody", scale: 1.12 },
+    { id: "nanum-pen", name: "나눔손글씨 펜", family: '"Nanum Pen Script"', g: "Nanum+Pen+Script", scale: 1.35 },
+    { id: "dongle", name: "동글", family: '"Dongle"', g: "Dongle:wght@400;700", scale: 1.5 },
+    { id: "single-day", name: "싱글데이", family: '"Single Day"', g: "Single+Day", scale: 1.05 }
+  ];
+  var fontGrid = document.getElementById("font-grid");
+  var loadedFontCss = {};
+  var appliedFont = null;
+  function fontById(id) {
+    for (var i = 0; i < FONTS.length; i++) if (FONTS[i].id === id) return FONTS[i];
+    return FONTS[0];
+  }
+  function addCss(href) {
+    if (loadedFontCss[href]) return;
+    loadedFontCss[href] = true;
+    var l = document.createElement("link");
+    l.rel = "stylesheet";
+    l.href = href;
+    document.head.appendChild(l);
+  }
+  function applyFont() {
+    var f = fontById(state.font || "");
+    var sz = sizeById(state.textSize || "");
+    var key = f.id + "|" + sz.id;
+    if (appliedFont === key) return;
+    appliedFont = key;
+    var root = document.documentElement.style;
+    var scale = (f.scale || 1) * sz.scale;
+    if (scale !== 1) root.setProperty("font-size", (16 * scale).toFixed(2) + "px");
+    else root.removeProperty("font-size");
+    Array.prototype.forEach.call(sizeSeg.children, function (b) {
+      var on = b.dataset.id === sz.id;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    if (!f.family) {
+      root.removeProperty("--font-body");
+      root.removeProperty("--font-display");
+    } else {
+      if (f.g) addCss("https://fonts.googleapis.com/css2?family=" + f.g + "&display=swap");
+      if (f.css) addCss(f.css);
+      var stack = f.family + ', -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif';
+      root.setProperty("--font-body", stack);
+      root.setProperty("--font-display", stack);
+    }
+    Array.prototype.forEach.call(fontGrid.children, function (b) {
+      var on = b.dataset.id === f.id;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+  }
+  // 목록 미리보기용: 글꼴 이름에 쓰인 글자만 아주 작게 내려받는다
+  var previewLoaded = false;
+  function loadPreviews() {
+    if (previewLoaded) return;
+    previewLoaded = true;
+    var chars = "";
+    FONTS.forEach(function (f) { chars += f.name; });
+    var fam = FONTS.filter(function (f) { return f.g; }).map(function (f) { return "family=" + f.g.split(":")[0]; }).join("&");
+    addCss("https://fonts.googleapis.com/css2?" + fam + "&text=" + encodeURIComponent(chars) + "&display=swap");
+    FONTS.forEach(function (f) { if (f.css) addCss(f.css); });
+  }
+  FONTS.forEach(function (f) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "font-opt";
+    b.dataset.id = f.id;
+    b.textContent = f.name;
+    if (f.family) b.style.fontFamily = f.family + ", sans-serif";
+    if (f.scale) b.style.fontSize = (0.9375 * f.scale).toFixed(3) + "rem";
+    b.addEventListener("click", function () {
+      state.font = f.id || undefined;
+      if (!f.id) delete state.font;
+      save();
+      applyFont();
+    });
+    fontGrid.appendChild(b);
+  });
+  function closeFont() {}   // 예전 글꼴 팝업 자리 (지금은 설정 페이지 안에 있음)
+
+  // ---- 화면 색상 ----
+  // theme: 라이트/다크 강제, palette: 라이트·다크 위에 덧입히는 색
+  var THEMES = [
+    { id: "", name: "자동", sub: "폰 설정 따라", sw: ["#ffffff", "#000000"] },
+    { id: "white", name: "흰색", theme: "light", sw: ["#ffffff", "#f5f5f7"] },
+    { id: "black", name: "검정", theme: "dark", sw: ["#000000", "#1c1c1e"] },
+    { id: "cream", name: "크림", theme: "light", palette: "cream", sw: ["#f7f1e6", "#fffaf1"] },
+    { id: "sky", name: "하늘", theme: "light", palette: "sky", sw: ["#e9f2fb", "#f7fbff"] },
+    { id: "pink", name: "벚꽃", theme: "light", palette: "pink", sw: ["#fbeef1", "#fff8fa"] },
+    { id: "mint", name: "민트", theme: "light", palette: "mint", sw: ["#e8f5ef", "#f7fdfa"] },
+    { id: "navy", name: "밤하늘", theme: "dark", palette: "navy", sw: ["#0b1220", "#162033"] },
+    { id: "lavender", name: "라벤더", theme: "light", palette: "lavender", sw: ["#f1effa", "#fbfaff"] },
+    { id: "lemon", name: "레몬", theme: "light", palette: "lemon", sw: ["#fbf7df", "#fffdf0"] },
+    { id: "peach", name: "복숭아", theme: "light", palette: "peach", sw: ["#fdf0e8", "#fff9f5"] },
+    { id: "stone", name: "회색 돌", theme: "light", palette: "stone", sw: ["#eeeff1", "#fafafb"] },
+    { id: "sand", name: "모래", theme: "light", palette: "sand", sw: ["#efe9df", "#f9f5ee"] },
+    { id: "choco", name: "초콜릿", theme: "dark", palette: "choco", sw: ["#1a1210", "#2a1f1b"] },
+    { id: "forest", name: "깊은 숲", theme: "dark", palette: "forest", sw: ["#0d1712", "#18261e"] },
+    { id: "violet", name: "보랏빛 밤", theme: "dark", palette: "violet", sw: ["#130f1f", "#221b33"] },
+    { id: "wine", name: "와인", theme: "dark", palette: "wine", sw: ["#1a0d11", "#2b161c"] }
+  ];
+  // 보여 주는 순서: 밝은 색 / 어두운 색
+  var THEME_ORDER = [
+    ["밝은 색", ["", "white", "cream", "sky", "pink", "mint", "lavender", "lemon", "peach", "stone", "sand"]],
+    ["어두운 색", ["black", "navy", "choco", "forest", "violet", "wine"]]
+  ];
+  // 강조색: 체크 표시, 추가 버튼, 선택한 날짜 등 (밝은 화면용 / 어두운 화면용)
+  var ACCENTS = [
+    { id: "", name: "기본" },
+    { id: "blue", name: "파랑", light: "#7b9cff", dark: "#9db4ff" },
+    { id: "green", name: "초록", light: "#6fcf9f", dark: "#8fe0b6" },
+    { id: "teal", name: "청록", light: "#5cc8d6", dark: "#85dbe6" },
+    { id: "purple", name: "보라", light: "#ab94f5", dark: "#c3b0ff" },
+    { id: "pink", name: "분홍", light: "#f58db0", dark: "#ffa9c5" },
+    { id: "orange", name: "주황", light: "#f9a572", dark: "#ffbd94" }
+  ];
+  function accentById(id) { for (var i = 0; i < ACCENTS.length; i++) if (ACCENTS[i].id === id) return ACCENTS[i]; return ACCENTS[0]; }
+  var SIZES = [
+    { id: "s", name: "작게", scale: 0.92 },
+    { id: "", name: "보통", scale: 1 },
+    { id: "l", name: "크게", scale: 1.1 },
+    { id: "xl", name: "아주 크게", scale: 1.22 }
+  ];
+  function themeById(id) { for (var i = 0; i < THEMES.length; i++) if (THEMES[i].id === id) return THEMES[i]; return THEMES[0]; }
+  function sizeById(id) { for (var i = 0; i < SIZES.length; i++) if (SIZES[i].id === id) return SIZES[i]; return SIZES[1]; }
+  var themeGrid = document.getElementById("theme-grid");
+  var sizeSeg = document.getElementById("size-seg");
+  var appliedTheme = null;
+  var darkMq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+  function applyTheme() {
+    var th = themeById(state.theme || "");
+    var ac = accentById(state.accent || "");
+    var isDark = th.theme === "dark" || (!th.theme && !!(darkMq && darkMq.matches));
+    var key = th.id + "|" + ac.id + "|" + isDark;
+    if (appliedTheme === key) return;
+    appliedTheme = key;
+    var el = document.documentElement;
+    if (th.theme) el.setAttribute("data-theme", th.theme); else el.removeAttribute("data-theme");
+    if (th.palette) el.setAttribute("data-palette", th.palette); else el.removeAttribute("data-palette");
+    var ACC_PROPS = ["--ink", "--accent", "--done", "--on-ink", "--on-fill", "--accent-soft"];
+    if (ac.id) {
+      var c = isDark ? ac.dark : ac.light;
+      var h = c.replace("#", ""), r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
+      el.style.setProperty("--ink", c);
+      el.style.setProperty("--accent", c);
+      el.style.setProperty("--done", c);
+      el.style.setProperty("--on-ink", isDark ? "#0b0b0c" : "#ffffff");
+      el.style.setProperty("--on-fill", isDark ? "#0b0b0c" : "#ffffff");
+      el.style.setProperty("--accent-soft", "rgba(" + r + ", " + g + ", " + b + ", .12)");
+    } else {
+      ACC_PROPS.forEach(function (p) { el.style.removeProperty(p); });
+    }
+    Array.prototype.forEach.call(accentGrid.children, function (bt) {
+      var on = bt.dataset.id === ac.id;
+      bt.classList.toggle("on", on);
+      bt.setAttribute("aria-pressed", on ? "true" : "false");
+      var dot = bt.querySelector(".accent-dot");
+      var a = accentById(bt.dataset.id);
+      dot.style.background = a.id ? (isDark ? a.dark : a.light) : (isDark ? "#f5f5f7" : "#111111");
+      dot.style.color = isDark ? "#0b0b0c" : "#ffffff";
+    });
+    // 아이폰·갤럭시 상단 상태바 색도 맞춘다
+    var metas = document.querySelectorAll('meta[name="theme-color"]');
+    var bg = getComputedStyle(el).getPropertyValue("--bg").trim();
+    Array.prototype.forEach.call(metas, function (m, i) {
+      if (!m.dataset.orig) m.dataset.orig = m.getAttribute("content");
+      m.setAttribute("content", th.id ? bg : m.dataset.orig);
+    });
+    Array.prototype.forEach.call(themeGrid.querySelectorAll(".theme-opt"), function (b) {
+      var on = b.dataset.id === th.id;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+  }
+  var accentGrid = document.getElementById("accent-grid");
+  var ORDERED_THEMES = [];
+  THEME_ORDER.forEach(function (grp) {
+    var lab = document.createElement("p");
+    lab.className = "theme-group";
+    lab.textContent = grp[0];
+    ORDERED_THEMES.push(lab);
+    grp[1].forEach(function (id) { ORDERED_THEMES.push(themeById(id)); });
+  });
+  ORDERED_THEMES.forEach(function (th) {
+    if (th.nodeType) { themeGrid.appendChild(th); return; }
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "theme-opt";
+    b.dataset.id = th.id;
+    b.innerHTML = '<span class="theme-sw" aria-hidden="true"><i></i><i></i></span><span class="theme-name"></span>';
+    b.querySelectorAll(".theme-sw i")[0].style.background = th.sw[0];
+    b.querySelectorAll(".theme-sw i")[1].style.background = th.sw[1];
+    b.querySelector(".theme-name").textContent = th.name;
+    if (th.sub) b.setAttribute("aria-label", th.name + " (" + th.sub + ")");
+    b.addEventListener("click", function () {
+      if (th.id) state.theme = th.id; else delete state.theme;
+      save();
+      applyTheme();
+    });
+    themeGrid.appendChild(b);
+  });
+  var CHECK_SVG = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  ACCENTS.forEach(function (ac) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "accent-opt";
+    b.dataset.id = ac.id;
+    b.innerHTML = '<span class="accent-dot">' + CHECK_SVG + '</span><span></span>';
+    b.lastChild.textContent = ac.name;
+    b.addEventListener("click", function () {
+      if (ac.id) state.accent = ac.id; else delete state.accent;
+      save();
+      applyTheme();
+    });
+    accentGrid.appendChild(b);
+  });
+  if (darkMq) {
+    var onScheme = function () { appliedTheme = null; applyTheme(); };
+    if (darkMq.addEventListener) darkMq.addEventListener("change", onScheme); else if (darkMq.addListener) darkMq.addListener(onScheme);
+  }
+  SIZES.forEach(function (sz) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "size-opt";
+    b.dataset.id = sz.id;
+    b.textContent = sz.name;
+    b.style.fontSize = (0.875 * sz.scale).toFixed(3) + "rem";
+    b.addEventListener("click", function () {
+      if (sz.id) state.textSize = sz.id; else delete state.textSize;
+      save();
+      applyFont();
+    });
+    sizeSeg.appendChild(b);
+  });
+
+  // ---- 설정 페이지 열고 닫기 ----
+  var settingsEl = document.getElementById("settings");
+  var settingsBtn = document.getElementById("settings-btn");
+  document.getElementById("g-gear").innerHTML = settingsBtn.innerHTML;
+  function openSettings() {
+    if (!settingsEl.hidden) return;
+    setCal(false); closeMood();
+    loadPreviews();
+    settingsEl.hidden = false;
+    settingsEl.scrollTop = 0;
+    document.body.classList.add("settings-open");
+    try { history.pushState({ todoSettings: 1 }, ""); } catch (e) {}
+    document.getElementById("settings-close").focus();
+  }
+  function closeSettings(fromHistory) {
+    if (settingsEl.hidden) return;
+    settingsEl.hidden = true;
+    document.body.classList.remove("settings-open");
+    if (!fromHistory && history.state && history.state.todoSettings) { try { history.back(); } catch (e) {} }
+    settingsBtn.focus();
+  }
+  settingsBtn.addEventListener("click", openSettings);
+  document.getElementById("settings-close").addEventListener("click", function () { closeSettings(false); });
+  window.addEventListener("popstate", function () { if (!settingsEl.hidden) closeSettings(true); });   // 갤럭시 뒤로가기 버튼
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !settingsEl.hidden && guideEl.hidden) closeSettings(false);
+  });
+
   function renderMood() {
     var m = moodOf(viewDay);
     var editable = viewDay === currentDay;
@@ -1964,7 +2596,7 @@ body.guide-open { overflow: hidden; }
   moodBtn.addEventListener("click", function () {
     if (viewDay !== currentDay) return;
     var open = moodPop.hidden;
-    if (open) setCal(false);
+    if (open) { setCal(false); closeFont(); }
     moodPop.hidden = !open;
     moodBtn.setAttribute("aria-expanded", open ? "true" : "false");
   });
@@ -2219,7 +2851,7 @@ body.guide-open { overflow: hidden; }
   var guideReturn = null;
   function openGuide() {
     guideReturn = document.activeElement;
-    setCal(false); closeMood();
+    setCal(false); closeMood(); closeFont();
     guideEl.hidden = false;
     document.body.classList.add("guide-open");
     document.getElementById("guide-go").focus();
