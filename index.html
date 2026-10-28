@@ -1111,6 +1111,17 @@ header { row-gap: 2px; }
 
 /* 입력할 때 아이폰이 화면을 확대하지 않게: 입력칸 글자는 16px 이상 */
 input:not([type="checkbox"]):not([type="file"]), textarea, select { font-size: max(16px, 1rem) !important; }
+
+/* 항목 글자 앞 반복 아이콘 숨김 (그룹 제목은 그대로) */
+li.item .repeat-mark { display: none !important; }
+/* 날짜 뒤 화살표 키움 */
+.date-btn::after { font-size: 0.8125rem; vertical-align: -1px; }
+
+/* 아침의 한 줄: 강조색과 같은 색으로 통일 */
+.m-text:not(.placeholder), #m-input { color: var(--accent); }
+#m-input { border-bottom-color: var(--accent); }
+.sp-preview { color: var(--accent); }
+.m-label { color: var(--accent); }
 </style>
 </head>
 <body>
