@@ -1108,6 +1108,9 @@ header { row-gap: 2px; }
   .nav-btn:hover:not(:disabled), .date-btn:hover, .status-btn:hover { background: transparent; }
 }
 .gear-btn { margin-left: auto; }
+
+/* 입력할 때 아이폰이 화면을 확대하지 않게: 입력칸 글자는 16px 이상 */
+input:not([type="checkbox"]):not([type="file"]), textarea, select { font-size: max(16px, 1rem) !important; }
 </style>
 </head>
 <body>
