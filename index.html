@@ -1328,6 +1328,103 @@ ul.list { gap: 7px; }
 .done-pop ul.list li.item .row { min-height: 44px; }
 
 .guide-go { position: sticky; bottom: 0; box-shadow: 0 -10px 16px 4px var(--surface); }
+
+body, .wrap { touch-action: pan-y; }
+@keyframes dayL { from { transform: translateX(48px); opacity: .0; } to { transform: none; opacity: 1; } }
+@keyframes dayR { from { transform: translateX(-48px); opacity: .0; } to { transform: none; opacity: 1; } }
+body.day-l .wrap > :not(#add-form):not(.toast):not(.guide-back):not(.settings-page) { animation: dayL .34s cubic-bezier(.2,.8,.2,1); }
+body.day-r .wrap > :not(#add-form):not(.toast):not(.guide-back):not(.settings-page) { animation: dayR .34s cubic-bezier(.2,.8,.2,1); }
+@media (prefers-reduced-motion: reduce) { body.day-l .group, body.day-r .group, body.day-l .empty, body.day-r .empty { animation: none; } }
+html, body, .wrap { touch-action: pan-y; }
+html { min-height: 100%; }
+
+.bigrow { touch-action: pan-y; }
+.bigrow #today { touch-action: pan-y; }
+
+#add-form { touch-action: pan-y; }
+
+/* ===== D-day ===== */
+.dd-chip { align-self: flex-end; flex: none; margin: 0 0 4px 4px; padding: 3px 10px; border-radius: 999px; font: inherit; font-size: .6875rem; font-weight: 700; letter-spacing: 0; color: var(--fg); background: var(--surface); border: 1px solid var(--line); box-shadow: inset 0 1px 0 var(--glass-hi, rgba(255,255,255,.8)), 0 4px 10px -6px var(--drop); cursor: pointer; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.dd-chip.empty { color: var(--muted); font-weight: 600; }
+.dd-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#dday .sp-inner { padding-bottom: 120px; }
+.dd-card { padding: 16px 16px 12px; }
+.dd-grid { display: grid; grid-template-columns: repeat(24, 1fr); gap: 0; }
+.dd-grid i { display: block; aspect-ratio: 1; position: relative; }
+.dd-grid i::after { content: ""; position: absolute; left: 50%; top: 50%; width: 3px; height: 3px; margin: -1.5px 0 0 -1.5px; border-radius: 50%; background: var(--muted); opacity: .45; }
+.dd-grid i.on::after { width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; background: var(--ink); opacity: 1; }
+.dd-grid i.today::after { background: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 28%, transparent); }
+.dd-year-note { margin-top: 12px; font-size: .8125rem; font-variant-numeric: tabular-nums; }
+.dd-hr { border: 0; border-top: 1px solid var(--line); margin: 14px 0 14px; }
+.dd-list { list-style: none; margin: 0; padding: 0; }
+.dd-row { position: relative; border-top: 1px solid var(--line); }
+.dd-row:first-child { border-top: 0; }
+.dd-row .row { min-height: 60px; padding: 8px 4px 8px 0; gap: 10px; background: transparent; }
+.dd-row.swiping .row { background: var(--bg); }
+.dd-row .swipe-bg { border-radius: 14px; }
+.dd-star { flex: none; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; border: 0; background: transparent; color: var(--muted); font-size: 1.375rem; line-height: 1; cursor: pointer; padding: 0; }
+.dd-star.on { color: var(--accent, var(--ink)); }
+.dd-row .dd-star.on { color: var(--fg); }
+.dd-star:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.dd-info { flex: 1; min-width: 0; }
+.dd-name { font-size: 1rem; font-weight: 600; overflow-wrap: anywhere; }
+.dd-date { margin-top: 2px; font-size: .75rem; color: var(--muted); }
+.dd-big { font-family: var(--font-display); font-size: 1.375rem; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; padding-right: 4px; }
+.dd-row.past .dd-big, .dd-row.past .dd-name { color: var(--muted); }
+.dd-hint { text-align: center; margin-top: 8px; }
+.dd-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 3; padding: 8px max(16px, env(safe-area-inset-right, 0px), calc((100% - 480px) / 2)) calc(12px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 8px; }
+.dd-input-row { display: flex; align-items: center; gap: 6px; padding: 5px; border-radius: 999px; background: color-mix(in srgb, var(--surface) 34%, transparent); -webkit-backdrop-filter: blur(18px) saturate(180%); backdrop-filter: blur(18px) saturate(180%); border: 1px solid var(--glass-border, var(--line)); box-shadow: inset 0 1px 0 var(--glass-hi, rgba(255,255,255,.7)), 0 8px 24px -10px var(--drop); }
+.dd-input-row:focus-within { box-shadow: inset 0 1px 0 var(--glass-hi), 0 0 0 2px var(--accent, var(--fg)); }
+#dd-name { flex: 1; min-width: 0; font: inherit; color: var(--fg); background: transparent; border: 0; box-shadow: none; padding: 10px 6px 10px 14px; }
+#dd-name:focus { outline: none; }
+.dd-datepill { position: relative; flex: none; display: flex; align-items: center; gap: 5px; height: 38px; padding: 0 12px; border-radius: 999px; font-size: .8125rem; color: var(--muted); background: color-mix(in srgb, var(--surface) 70%, transparent); border: 1px solid var(--line); cursor: pointer; white-space: nowrap; overflow: hidden; font-variant-numeric: tabular-nums; }
+.dd-datepill svg { width: 16px; height: 16px; flex: none; }
+.dd-datepill.set { color: var(--fg); font-weight: 600; }
+.dd-datepill input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; border: 0; padding: 0; font-size: 16px; }
+.dd-datepill:focus-within { outline: 2px solid var(--accent); outline-offset: 1px; }
+.dd-datepill.shake { animation: dd-shake .35s ease; border-color: var(--danger); }
+@keyframes dd-shake { 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
+.dd-add { flex: none; height: 40px; padding: 0 18px; border-radius: 999px; border: 0; font: inherit; font-weight: 600; cursor: pointer; color: var(--on-ink); background: var(--ink); }
+.dd-add:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+.dd-editbar { align-self: flex-start; display: flex; align-items: center; gap: 8px; padding: 4px 6px 4px 12px; border-radius: 999px; font-size: .75rem; background: color-mix(in srgb, var(--surface) 55%, transparent); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border: 1px solid var(--glass-border, var(--line)); }
+.dd-editbar button { font: inherit; font-size: .75rem; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; }
+.dd-undo { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(86px + env(safe-area-inset-bottom, 0px)); z-index: 4; display: flex; align-items: center; gap: 12px; padding: 6px 6px 6px 18px; border-radius: 999px; font-size: .875rem; background: var(--ink); color: var(--on-ink); box-shadow: 0 10px 30px -8px rgba(0,0,0,.4); max-width: calc(100% - 32px); }
+.dd-undo button { font: inherit; font-size: .8125rem; font-weight: 700; padding: 7px 14px; border-radius: 999px; border: 0; background: var(--on-ink); color: var(--ink); cursor: pointer; }
+.dd-undo[hidden] { display: none; }
+.dd-undo span { white-space: nowrap; }
+.dd-undo button { flex: none; white-space: nowrap; }
+.dd-undo { background: var(--glass-strong); color: var(--fg); border: 1px solid var(--glass-border); -webkit-backdrop-filter: blur(22px) saturate(180%); backdrop-filter: blur(22px) saturate(180%); box-shadow: inset 0 1px 0 var(--glass-hi), var(--glass-shadow); font-size: .8125rem; }
+.dd-undo button { background: var(--ink); color: var(--on-ink); font-weight: 600; font-size: inherit; }
+#dday .sp-inner { padding-top: 0; }
+#dday .sp-head { margin-top: 0; padding-top: 10px; margin-bottom: 4px; }
+#dday .dd-card, #dday .dd-card.sp-sec { background: transparent; border: 0; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; border-radius: 0; padding: 4px 2px 12px; }
+.dd-grid { grid-template-columns: repeat(37, 1fr); }
+.dd-grid i.on::after { width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; }
+.dd-grid i::after { width: 2px; height: 2px; margin: -1px 0 0 -1px; }
+.dd-grid i.today::after { width: 6px; height: 6px; margin: -3px 0 0 -3px; box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 28%, transparent); }
+.dd-year-note { margin-top: 6px; }
+.dd-hr { margin: 10px 0; }
+#dday .sp-head { padding-top: 4px; }
+.dd-grid { grid-template-columns: repeat(20, 1fr); width: min(100%, 300px); margin: 0 auto; }
+.dd-grid i.on::after { width: 8px; height: 8px; margin: -4px 0 0 -4px; }
+.dd-grid i::after { width: 3px; height: 3px; margin: -1.5px 0 0 -1.5px; }
+.dd-grid i.today::after { width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; }
+.dd-year-note { text-align: center; }
+.dd-grid { width: min(100%, 190px); }
+.dd-grid i.on::after { width: 6px; height: 6px; margin: -3px 0 0 -3px; }
+.dd-grid i::after { width: 2px; height: 2px; margin: -1px 0 0 -1px; }
+.dd-grid i.today::after { width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; }
+#dday .sp-head { margin-bottom: 0; }
+#dday .dd-card h3 { margin: 0 0 6px; }
+.dd-year-note { margin-top: 4px; }
+.dd-hr { margin: 8px 0 6px; }
+.dd-row .row { min-height: 54px; padding-top: 4px; padding-bottom: 4px; }
+.dd-grid { display: grid; grid-template-columns: repeat(19, 11px); grid-auto-rows: 11px; width: auto; justify-content: center; margin: 0 auto; }
+.dd-grid i { aspect-ratio: auto; width: 11px; height: 11px; }
+.dd-grid i.on::after { width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; }
+.dd-grid i.today::after { width: 8px; height: 8px; margin: -4px 0 0 -4px; }
+.dd-grid { grid-template-columns: repeat(30, 1fr); grid-auto-rows: auto; width: min(100%, 330px); justify-content: stretch; margin: 0 auto; }
+.dd-grid i { aspect-ratio: 1; width: auto; height: auto; }
 </style>
 </head>
 <body>
@@ -1370,6 +1467,7 @@ ul.list { gap: 7px; }
     <div class="bigrow">
       <button class="date date-btn" id="today" type="button" aria-expanded="false" aria-controls="cal" aria-label="달력 열기"></button>
       <button class="small-btn" id="go-today" type="button" hidden>오늘</button>
+      <button class="dd-chip empty" id="dd-chip" type="button" aria-haspopup="dialog" aria-label="D-day 관리">D-day</button>
       <section class="weather" id="weather" aria-label="오늘 날씨">
       <div class="w-main">
         <div class="w-ico" id="w-ico" aria-hidden="true"></div>
@@ -1485,6 +1583,33 @@ ul.list { gap: 7px; }
   </section>
 
 
+  <section class="settings-page" id="dday" role="dialog" aria-modal="true" aria-labelledby="dday-h" hidden>
+    <div class="sp-inner">
+      <div class="sp-head">
+        <button type="button" class="sp-back" id="dday-close" aria-label="D-day 닫기"><span aria-hidden="true">‹</span> 돌아가기</button>
+        <h2 id="dday-h">D-day</h2>
+      </div>
+      <section class="sp-sec dd-card" aria-label="D-day">
+        <h3 id="dd-year-h">올해</h3>
+        <div class="dd-grid" id="dd-grid" role="img" aria-label=""></div>
+        <p class="sp-note dd-year-note" id="dd-year-note"></p>
+        <hr class="dd-hr">
+        <h3 id="dd-list-h">내 D-day</h3>
+        <ul class="dd-list" id="dd-list"></ul>
+        <p class="sp-note" id="dd-empty">아직 없어요. 아래에서 만들어 보세요.</p>
+      </section>
+    </div>
+    <div class="dd-undo" id="dd-undo" hidden><span id="dd-undo-msg"></span><button type="button" id="dd-undo-btn">되돌리기</button></div>
+    <form class="dd-bar" id="dd-form" novalidate autocomplete="off">
+      <div class="dd-editbar" id="dd-editbar" hidden><span id="dd-edit-name"></span><button type="button" id="dd-cancel">취소</button></div>
+      <div class="dd-input-row">
+        <input id="dd-name" type="text" maxlength="20" placeholder="D-day 이름" aria-label="D-day 이름">
+        <label class="dd-datepill" id="dd-datepill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg><span id="dd-date-text">날짜</span><input id="dd-date" type="date" aria-label="날짜 고르기"></label>
+        <button class="dd-add" type="submit" id="dd-save">추가</button>
+      </div>
+    </form>
+  </section>
+
   <div class="guide-back" id="guide" hidden>
     <div class="guide" role="dialog" aria-modal="true" aria-labelledby="guide-h">
       <p class="guide-kicker">처음 오셨나요?</p>
@@ -1498,6 +1623,7 @@ ul.list { gap: 7px; }
         <li><span class="g-ico g-red" id="g-siren"></span><span><b>사이렌</b>급한 일은 빨갛게 표시돼요</span></li>
         <li><span class="g-ico g-small">27</span><span><b>맨 위 날짜 줄</b>날짜를 누르면 그날로 이동 · 좌우로 끌거나 ‹ › 를 누르면 한 주씩 넘어가요</span></li>
         <li><span class="g-ico g-small">28</span><span><b>큰 날짜 누르기</b>달력으로 다른 날 보기 · 미리 적어 두기</span></li>
+        <li><span class="g-ico g-small">D-5</span><span><b>날짜 옆 D-day</b>눌러서 여러 개 만들 수 있어요. 이름과 날짜를 적고 추가를 누르세요 · 왼쪽 ☆를 누르면 홈에 표시 · 왼쪽으로 밀면 삭제, 오른쪽으로 밀면 수정</span></li>
         <li><span class="g-ico g-small">＋</span><span><b>오늘 날짜 칸의 ＋</b>오늘의 기분을 이모티콘으로 남겨요</span></li>
         <li><span class="g-ico g-small">☀</span><span><b>날씨 그림</b>누르면 지역을 바꿀 수 있어요</span></li>
         <li><span class="g-ico" id="g-repeat"></span><span><b>반복 체크</b>입력칸 위에서 켜면 매일, 또는 고른 요일마다 다시 나타나요</span></li>
@@ -1575,6 +1701,14 @@ ul.list { gap: 7px; }
       state.datedV2 = true;
       migrated = true;
     }
+    if (!Array.isArray(state.ddays)) state.ddays = [];
+    state.ddays = state.ddays.filter(function (d) {
+      return d && typeof d.name === "string" && typeof d.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d.date) && d.id === (d.id | 0);
+    }).slice(0, 30);
+    var ddMaxId = 0;
+    state.ddays.forEach(function (d) { if (d.id > ddMaxId) ddMaxId = d.id; });
+    if (!state.ddayNext || state.ddayNext <= ddMaxId) state.ddayNext = ddMaxId + 1;
+    if (state.ddayMain != null && !state.ddays.some(function (d) { return d.id === state.ddayMain; })) state.ddayMain = null;
     if (!state.history || typeof state.history !== "object") state.history = {};
     if (!state.lines || typeof state.lines !== "object") state.lines = {};
     if (!state.moods || typeof state.moods !== "object") state.moods = {};
@@ -2631,6 +2765,7 @@ ul.list { gap: 7px; }
     renderTodayDone();
     renderHistory();
     renderCal();
+    renderDdayChip();
     renderMorning();
     if (editId !== null) {
       var ei = document.getElementById("edit-" + editId);
@@ -2900,6 +3035,276 @@ ul.list { gap: 7px; }
       applyFont();
     });
     sizeSeg.appendChild(b);
+  });
+
+  // ---- D-day ----
+  var DD_MAX = 30;
+  var ddEl = document.getElementById("dday");
+  var ddChip = document.getElementById("dd-chip");
+  var ddEditId = null, ddConfirmId = null, ddConfirmTimer = null;
+  function ddDiff(date) { return Math.round((parseKey(date) - parseKey(currentDay)) / 86400000); }
+  function ddLabel(diff) { return diff > 0 ? "D-" + diff : (diff === 0 ? "D-Day" : "D+" + (-diff)); }
+  function ddMain() {
+    var l = state.ddays || [];
+    for (var i = 0; i < l.length; i++) if (l[i].id === state.ddayMain) return l[i];
+    return null;
+  }
+  function renderDdayChip() {
+    var m = ddMain();
+    if (m) {
+      var lb = ddLabel(ddDiff(m.date));
+      ddChip.textContent = lb;
+      ddChip.classList.remove("empty");
+      ddChip.setAttribute("aria-label", "D-day " + m.name + " " + lb + ", 눌러서 관리");
+    } else {
+      ddChip.textContent = "D-day";
+      ddChip.classList.add("empty");
+      ddChip.setAttribute("aria-label", "D-day 만들기");
+    }
+  }
+  function renderDdGrid() {
+    var grid = document.getElementById("dd-grid");
+    var now = parseKey(currentDay), y = now.getFullYear();
+    var start = new Date(y, 0, 1), end = new Date(y + 1, 0, 1);
+    var total = Math.round((end - start) / 86400000);
+    var doy = Math.round((now - start) / 86400000) + 1;
+    grid.innerHTML = "";
+    var frag = document.createDocumentFragment();
+    for (var i = 1; i <= total; i++) {
+      var c = document.createElement("i");
+      if (i <= doy) c.className = "on" + (i === doy ? " today" : "");
+      frag.appendChild(c);
+    }
+    grid.appendChild(frag);
+    var left = total - doy;
+    document.getElementById("dd-year-h").textContent = y + "년";
+    document.getElementById("dd-year-note").textContent = doy + "일째 · " + left + "일 남음 · " + Math.round(doy / total * 100) + "%";
+    grid.setAttribute("aria-label", y + "년 " + total + "일 중 " + doy + "일이 지났어요");
+  }
+  function ddDateText(date) {
+    var d = parseKey(date);
+    return d.getFullYear() + "." + (d.getMonth() + 1) + "." + d.getDate() + " (" + WEEK[d.getDay()] + ")";
+  }
+  function ddPillText(date) {
+    if (!date) return "날짜";
+    var d = parseKey(date), cy = parseKey(currentDay).getFullYear();
+    return (d.getFullYear() !== cy ? d.getFullYear() + "." : "") + (d.getMonth() + 1) + "." + d.getDate();
+  }
+  var ddUndoTimer = null;
+  function showDdUndo(msg, fn) {
+    document.getElementById("dd-undo-msg").textContent = msg;
+    var box = document.getElementById("dd-undo");
+    box.hidden = false;
+    box._fn = fn;
+    clearTimeout(ddUndoTimer);
+    ddUndoTimer = setTimeout(function () { box.hidden = true; box._fn = null; }, 5000);
+  }
+  document.getElementById("dd-undo-btn").addEventListener("click", function () {
+    var box = document.getElementById("dd-undo");
+    var fn = box._fn;
+    box.hidden = true; box._fn = null; clearTimeout(ddUndoTimer);
+    if (fn) fn();
+  });
+  function deleteDday(it) {
+    var idx = state.ddays.indexOf(it), wasMain = state.ddayMain === it.id;
+    state.ddays.splice(idx, 1);
+    if (wasMain) state.ddayMain = null;
+    if (ddEditId === it.id) resetDdForm();
+    save(); renderDdayChip(); renderDdList();
+    showDdUndo("'" + it.name + "' 삭제했어요", function () {
+      state.ddays.splice(Math.min(idx, state.ddays.length), 0, it);
+      if (wasMain) state.ddayMain = it.id;
+      save(); renderDdayChip(); renderDdList();
+    });
+  }
+  // 옆으로 밀기: 왼쪽 = 삭제, 오른쪽 = 수정
+  function ddSwipe(row, li, it) {
+    var sx = 0, sy = 0, pid = null, mode = 0, dx = 0, bg = null, LIM = 40;
+    row.style.touchAction = "pan-y";
+    row.addEventListener("pointerdown", function (e) {
+      if (e.target.closest("button")) return;
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      pid = e.pointerId; sx = e.clientX; sy = e.clientY; mode = 0; dx = 0;
+    });
+    row.addEventListener("pointermove", function (e) {
+      if (pid !== e.pointerId) return;
+      var mx = e.clientX - sx, my = e.clientY - sy;
+      if (!mode) {
+        if (Math.abs(mx) > 4 && Math.abs(mx) > Math.abs(my) * 0.9) {
+          mode = 1;
+          try { row.setPointerCapture(pid); } catch (err) {}
+          bg = document.createElement("div");
+          bg.className = "swipe-bg";
+          bg.setAttribute("aria-hidden", "true");
+          bg.innerHTML = '<span class="sw-del">삭제</span><span class="sw-edit">수정</span>';
+          bg.style.height = row.offsetHeight + "px";
+          li.insertBefore(bg, row);
+          li.classList.add("swiping");
+          row.style.transition = "none";
+        } else if (Math.abs(my) > 10) { pid = null; return; } else return;
+      }
+      dx = mx;
+      var shown = Math.abs(dx) > LIM ? (dx > 0 ? 1 : -1) * (LIM + (Math.abs(dx) - LIM) * 0.35) : dx;
+      row.style.transform = "translateX(" + shown + "px)";
+      bg.classList.toggle("del", dx < 0);
+      bg.classList.toggle("edit", dx > 0);
+      bg.classList.toggle("ready", Math.abs(dx) >= LIM);
+    });
+    function snap() {
+      row.style.transition = "transform .22s ease";
+      row.style.transform = "";
+      var b = bg;
+      setTimeout(function () { if (b && b.parentNode) b.remove(); li.classList.remove("swiping"); row.style.transition = ""; }, 240);
+    }
+    function end() {
+      if (pid === null) return;
+      pid = null;
+      if (!mode) return;
+      mode = 0;
+      var kill = function (ev) { ev.stopPropagation(); ev.preventDefault(); };
+      row.addEventListener("click", kill, true);
+      setTimeout(function () { row.removeEventListener("click", kill, true); }, 60);
+      if (dx <= -LIM) {
+        row.style.transition = "transform .2s ease";
+        row.style.transform = "translateX(-" + row.offsetWidth + "px)";
+        setTimeout(function () { deleteDday(it); }, 200);
+      } else if (dx >= LIM) {
+        row.style.transition = "transform .2s ease";
+        row.style.transform = "translateX(" + row.offsetWidth + "px)";
+        var bgx = bg;
+        setTimeout(function () {
+          startDdEdit(it);
+          row.style.transition = "none";
+          row.style.transform = "translateX(" + row.offsetWidth + "px)";
+          void row.offsetWidth;
+          row.style.transition = "transform .3s ease";
+          row.style.transform = "";
+          setTimeout(function () { if (bgx && bgx.parentNode) bgx.remove(); li.classList.remove("swiping"); row.style.transition = ""; }, 320);
+        }, 200);
+      } else snap();
+    }
+    row.addEventListener("pointerup", end);
+    row.addEventListener("pointercancel", end);
+  }
+  function renderDdList() {
+    var ul = document.getElementById("dd-list");
+    var list = (state.ddays || []).slice().sort(function (a, b) {
+      var da = ddDiff(a.date), db = ddDiff(b.date);
+      if ((state.ddayMain === a.id) !== (state.ddayMain === b.id)) return state.ddayMain === a.id ? -1 : 1;
+      if ((da >= 0) !== (db >= 0)) return da >= 0 ? -1 : 1;
+      return da >= 0 ? da - db : db - da;
+    });
+    ul.innerHTML = "";
+    document.getElementById("dd-empty").hidden = list.length > 0;
+    list.forEach(function (it) {
+      var diff = ddDiff(it.date);
+      var li = document.createElement("li");
+      li.className = "item dd-row" + (diff < 0 ? " past" : "");
+      var row = document.createElement("div");
+      row.className = "row";
+      var isMain = state.ddayMain === it.id;
+      var star = document.createElement("button");
+      star.type = "button";
+      star.className = "dd-star" + (isMain ? " on" : "");
+      star.textContent = isMain ? "★" : "☆";
+      star.setAttribute("aria-pressed", isMain ? "true" : "false");
+      star.setAttribute("aria-label", (isMain ? "홈 표시 해제: " : "홈에 표시: ") + it.name);
+      star.addEventListener("click", function () {
+        state.ddayMain = isMain ? null : it.id;
+        save(); renderDdayChip(); renderDdList();
+      });
+      var info = document.createElement("div");
+      info.className = "dd-info";
+      var nm = document.createElement("div");
+      nm.className = "dd-name";
+      nm.textContent = it.name;
+      var dt = document.createElement("div");
+      dt.className = "dd-date";
+      dt.textContent = ddDateText(it.date);
+      info.appendChild(nm); info.appendChild(dt);
+      var big = document.createElement("div");
+      big.className = "dd-big";
+      big.textContent = ddLabel(diff);
+      row.appendChild(star); row.appendChild(info); row.appendChild(big);
+      li.appendChild(row);
+      ddSwipe(row, li, it);
+      ul.appendChild(li);
+    });
+  }
+  var ddForm = document.getElementById("dd-form");
+  var ddName = document.getElementById("dd-name");
+  var ddDate = document.getElementById("dd-date");
+  function syncDdPill() {
+    document.getElementById("dd-date-text").textContent = ddPillText(ddDate.value);
+    document.getElementById("dd-datepill").classList.toggle("set", !!ddDate.value);
+  }
+  ddDate.addEventListener("input", syncDdPill);
+  ddDate.addEventListener("change", syncDdPill);
+  function resetDdForm() {
+    ddEditId = null;
+    ddName.value = ""; ddDate.value = "";
+    document.getElementById("dd-save").textContent = "추가";
+    document.getElementById("dd-editbar").hidden = true;
+    syncDdPill();
+  }
+  function startDdEdit(it) {
+    ddEditId = it.id;
+    ddName.value = it.name; ddDate.value = it.date;
+    document.getElementById("dd-save").textContent = "저장";
+    document.getElementById("dd-edit-name").textContent = "'" + it.name + "' 고치는 중";
+    document.getElementById("dd-editbar").hidden = false;
+    syncDdPill();
+    ddName.focus();
+  }
+  document.getElementById("dd-cancel").addEventListener("click", resetDdForm);
+  ddForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var name = ddName.value.trim(), date = ddDate.value;
+    if (!name) { ddName.focus(); return; }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      var pill = document.getElementById("dd-datepill");
+      pill.classList.remove("shake"); void pill.offsetWidth; pill.classList.add("shake"); setTimeout(function () { pill.classList.remove("shake"); }, 700);
+      try { if (ddDate.showPicker) ddDate.showPicker(); } catch (err) {}
+      return;
+    }
+    if (ddEditId !== null) {
+      var cur = (state.ddays || []).filter(function (d) { return d.id === ddEditId; })[0];
+      if (cur) { cur.name = name; cur.date = date; }
+    } else {
+      if (state.ddays.length >= DD_MAX) { showDdUndo("D-day는 " + DD_MAX + "개까지 만들 수 있어요", null); return; }
+      var id = state.ddayNext || 1;
+      state.ddayNext = id + 1;
+      state.ddays.push({ id: id, name: name, date: date });
+      if (state.ddayMain == null) state.ddayMain = id;
+    }
+    save();
+    resetDdForm();
+    renderDdayChip(); renderDdList();
+  });
+  function openDday() {
+    if (!ddEl.hidden) return;
+    setCal(false); closeMood();
+    resetDdForm();
+    renderDdGrid(); renderDdList();
+    ddEl.hidden = false;
+    ddEl.scrollTop = 0;
+    document.body.classList.add("settings-open");
+    try { history.pushState({ todoDday: 1 }, ""); } catch (e) {}
+    document.getElementById("dday-close").focus();
+  }
+  function closeDday(fromHistory) {
+    if (ddEl.hidden) return;
+    ddEl.hidden = true;
+    document.body.classList.remove("settings-open");
+    clearTimeout(ddConfirmTimer); ddConfirmId = null;
+    if (!fromHistory && history.state && history.state.todoDday) { try { history.back(); } catch (e) {} }
+    ddChip.focus();
+  }
+  ddChip.addEventListener("click", openDday);
+  document.getElementById("dday-close").addEventListener("click", function () { closeDday(false); });
+  window.addEventListener("popstate", function () { if (!ddEl.hidden) closeDday(true); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !ddEl.hidden && guideEl.hidden) closeDday(false);
   });
 
   // ---- 설정 페이지 열고 닫기 ----
